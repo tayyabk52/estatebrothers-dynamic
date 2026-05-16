@@ -68,3 +68,12 @@ export const inventoryFilters = {
   sizes: ["All", "5 Marla", "10 Marla", "1 Kanal", "2 Kanal"],
   statuses: ["All", "Available", "Possession", "File", "For Sale"],
 };
+
+export function getAgent(agentId: string) {
+  return agents.find((a) => a.id === agentId) ?? agents[0];
+}
+
+export function getListingBySlug(type: string, slug: string) {
+  const source = type === "plot" ? plotListings : houseListings;
+  return source.find((l) => l.slug === slug) ?? null;
+}

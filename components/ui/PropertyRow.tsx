@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 interface FeaturedProperty {
-  id: number;
+  id: string;
   image: string;
   photoNote: string;
   place: string;

@@ -12,7 +12,7 @@ export function useReveal() {
       { threshold: 0.08 },
     );
 
-    const observeRevealElements = (root = document) => {
+    const observeRevealElements = (root: Document | Element = document) => {
       const elements =
         root instanceof Element && root.matches(".reveal")
           ? [root, ...root.querySelectorAll(".reveal")]
