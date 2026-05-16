@@ -1,0 +1,98 @@
+export const featuredProperties = [
+  {
+    id: "01",
+    place: "Sector F-7 · Islamabad",
+    name: "Margalla Vista Residence",
+    desc: "A 1-Kanal modernist villa in white Carrara marble and fair-face concrete, sited against the Margalla Hills. Five bedrooms, basement majlis, lap pool.",
+    priceLabel: "PKR 42 Crore",
+    plot: "1 Kanal",
+    beds: 5,
+    baths: 6,
+    covered: 8200,
+    arch: "Coalesce Design Studio, 2023",
+    status: "POSSESSION READY",
+    tag: "possession",
+    image: "/images/properties/margalla-vista-residence.webp",
+    photoNote: "PHOTOGRAPH - north elevation at twilight, Margalla backdrop",
+  },
+  {
+    id: "02",
+    place: "DHA Phase 6 · Lahore",
+    name: "Khayaban-e-Amir Bungalow",
+    desc: "A 2-Kanal corner bungalow on Khayaban-e-Amir with a 60-ft road front. Burma teak interiors, jali-screened courtyard, separate guest wing.",
+    priceLabel: "PKR 38 Crore",
+    plot: "2 Kanal",
+    beds: 6,
+    baths: 7,
+    covered: 11400,
+    arch: "Studio Arif Hasan, 2021",
+    status: "POSSESSION READY",
+    tag: "possession",
+    image: "/images/properties/khayaban-e-amir-bungalow.webp",
+    photoNote: "PHOTOGRAPH - entry courtyard, jali screen, evening light",
+  },
+  {
+    id: "03",
+    place: "DHA Phase 8 · Karachi",
+    name: "Khayaban-e-Shaheen Penthouse",
+    desc: "Sea-facing duplex penthouse over the Arabian Sea. Two floors, 6,200 sf interior, private terrace and plunge pool. Direct lift entry.",
+    priceLabel: "PKR 28 Crore",
+    plot: "Duplex",
+    beds: 4,
+    baths: 5,
+    covered: 6200,
+    arch: "AKDA, completed 2024",
+    status: "POSSESSION READY",
+    tag: "possession",
+    image: "/images/properties/khayaban-e-shaheen-penthouse.webp",
+    photoNote: "PHOTOGRAPH - south-west view, sunset over the Arabian Sea",
+  },
+  {
+    id: "04",
+    place: "Bani Gala · Islamabad",
+    name: "Rawal View Farmhouse",
+    desc: "A 4-Kanal farmhouse retreat overlooking Rawal Lake. Lap pool, olive grove, a separate two-bedroom guesthouse, and 35 KW solar.",
+    priceLabel: "PKR 65 Crore",
+    plot: "4 Kanal",
+    beds: 7,
+    baths: 8,
+    covered: 14800,
+    arch: "Habib Fida Ali Studio, 2019",
+    status: "ALLOTMENT FILE",
+    tag: "allotment",
+    image: "/images/properties/rawal-view-farmhouse.webp",
+    photoNote: "PHOTOGRAPH - lake-facing terrace, olive grove, morning",
+  },
+];
+
+export const testimonials = [
+  {
+    quote: "Estate Brothers made the entire process feel secure, transparent, and properly guided. Their team understood both the property and the investment decision behind it.",
+    name: "Faraz & Sana Sheikh",
+    role: "Lahore - 2024",
+  },
+  {
+    quote: "The advice was clear from day one. They helped us compare opportunities, avoid pressure, and move only when the numbers and location made sense.",
+    name: "Dr. Mahnoor Qureshi",
+    role: "Investment client - 2023",
+  },
+  {
+    quote: "Their market knowledge, documentation support, and follow-through gave us confidence through every stage of the transaction.",
+    name: "Omar Shahid",
+    role: "Property services client",
+  },
+];
+
+export const stats = [
+  { n: "10", unit: "+ yrs", l: "Hands-on market experience" },
+  { n: "38", unit: "d", l: "Median days, listing to offer" },
+  { n: "96", unit: "%", l: "Closed within 4% of ask" },
+  { n: "4", unit: " branches", l: "Serving clients across Pakistan" },
+];
+
+export const heroStats = [
+  { n: "180", unit: "+", l: "Active mandates" },
+  { n: "10", unit: "+ yrs", l: "Real estate experience" },
+  { n: "30", unit: "+", l: "Professional team members" },
+  { n: "24/7", unit: "", l: "Always open for clients" },
+];
