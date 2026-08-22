@@ -6,10 +6,10 @@ export const agents = [
 ];
 
 export const plotListings = [
-  { id: "plot-001", slug: "dha-phase-6-1-kanal-possession-plot", type: "plot", phase: "DHA Phase 6", project: "Main Boulevard", size: "1 Kanal", price: "PKR 5.85 Cr", status: "Possession", contactPersonId: "abdul-rehman", city: "Lahore", block: "C Block", notes: "Prime possession plot near main access with clear approach.", updatedAt: "2026-05-15" },
+  { id: "plot-001", slug: "dha-phase-6-1-kanal-possession-plot", type: "plot", phase: "DHA Phase 6", project: "Main Boulevard", size: "1 Kanal", price: "PKR 5.85 Cr", priceNumeric: 58500000, status: "Possession", contactPersonId: "abdul-rehman", city: "Lahore", block: "C Block", notes: "Prime possession plot near main access with clear approach.", updatedAt: "2026-05-15" },
   { id: "plot-002", slug: "dha-phase-8-10-marla-commercial-file", type: "plot", phase: "DHA Phase 8", project: "Commercial Broadway", size: "10 Marla", price: "On Call", status: "File", contactPersonId: "faizan-hamid", city: "Lahore", block: "Broadway", notes: "Commercial opportunity suitable for investors comparing DHA Phase 8 options.", updatedAt: "2026-05-14" },
-  { id: "plot-003", slug: "dha-phase-9-town-5-marla-residential-plot", type: "plot", phase: "DHA Phase 9 Town", project: "Residential Sector", size: "5 Marla", price: "PKR 1.45 Cr", status: "Available", contactPersonId: "ahmad-raza", city: "Lahore", block: "D Block", notes: "Compact residential plot for end-user construction or long-term holding.", updatedAt: "2026-05-13" },
-  { id: "plot-004", slug: "dha-phase-7-2-kanal-corner-plot", type: "plot", phase: "DHA Phase 7", project: "Corner Residential", size: "2 Kanal", price: "PKR 11.25 Cr", status: "Available", contactPersonId: "tajamal-hussain", city: "Lahore", block: "Y Block", notes: "Large corner residential plot for premium construction planning.", updatedAt: "2026-05-12" },
+  { id: "plot-003", slug: "dha-phase-9-town-5-marla-residential-plot", type: "plot", phase: "DHA Phase 9 Town", project: "Residential Sector", size: "5 Marla", price: "PKR 1.45 Cr", priceNumeric: 14500000, status: "Available", contactPersonId: "ahmad-raza", city: "Lahore", block: "D Block", notes: "Compact residential plot for end-user construction or long-term holding.", updatedAt: "2026-05-13" },
+  { id: "plot-004", slug: "dha-phase-7-2-kanal-corner-plot", type: "plot", phase: "DHA Phase 7", project: "Corner Residential", size: "2 Kanal", price: "PKR 11.25 Cr", priceNumeric: 112500000, status: "Available", contactPersonId: "tajamal-hussain", city: "Lahore", block: "Y Block", notes: "Large corner residential plot for premium construction planning.", updatedAt: "2026-05-12" },
 ];
 
 export const houseListings = [
@@ -31,7 +31,7 @@ export const houseListings = [
   },
   {
     id: "house-002", slug: "1-kanal-possession-ready-house-dha-phase-6-lahore", type: "house",
-    title: "1 Kanal Possession Ready House in DHA Phase 6", status: "For Sale", price: "PKR 12.8 Cr",
+    title: "1 Kanal Possession Ready House in DHA Phase 6", status: "For Sale", price: "PKR 12.8 Cr", priceNumeric: 128000000,
     phase: "DHA Phase 6", city: "Lahore", size: "1 Kanal", bedrooms: 5, bathrooms: 6,
     contactPersonId: "abdul-rehman",
     thumbnail: "/images/properties/margalla-vista-residence.webp",
@@ -47,7 +47,7 @@ export const houseListings = [
   },
   {
     id: "house-003", slug: "2-kanal-luxury-bungalow-dha-phase-7-lahore", type: "house",
-    title: "2 Kanal Luxury Bungalow in DHA Phase 7", status: "For Sale", price: "PKR 24 Cr",
+    title: "2 Kanal Luxury Bungalow in DHA Phase 7", status: "For Sale", price: "PKR 24 Cr", priceNumeric: 240000000,
     phase: "DHA Phase 7", city: "Lahore", size: "2 Kanal", bedrooms: 6, bathrooms: 7,
     contactPersonId: "tajamal-hussain",
     thumbnail: "/images/properties/rawal-view-farmhouse.webp",

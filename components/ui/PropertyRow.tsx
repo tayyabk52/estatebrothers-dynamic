@@ -28,6 +28,9 @@ export function PropertyRow({ property }: { property: FeaturedProperty }) {
           width={600}
           height={400}
           loading="lazy"
+          sizes="(max-width:640px) 100vw, (max-width:1280px) 50vw, 640px"
+          placeholder="blur"
+          blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
         />
         <span className="ph">{property.photoNote}</span>
       </div>

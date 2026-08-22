@@ -20,7 +20,21 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-export function ContactClient() {
+interface ContactClientProps {
+  businessName?: string;
+  email?: string | null;
+  phone?: string | null;
+  instagram?: string | null;
+  officeItems?: { id: string; city: string | null; address: string }[];
+}
+
+export function ContactClient({
+  businessName = "Estate Brothers",
+  email = null,
+  phone = null,
+  instagram = null,
+  officeItems,
+}: ContactClientProps) {
   const [form, setForm] = useState<FormState>({
     name: "",
     email: "",
@@ -30,15 +44,16 @@ export function ContactClient() {
     city: "Lahore",
   });
   const [sent, setSent] = useState(false);
+  const [reference, setReference] = useState<string | null>(null);
 
   const valid = form.name.trim() && form.email.includes("@");
-  const ref = `EB-${String(Date.now()).slice(-6)}`;
   const set = (key: keyof FormState, value: string) =>
     setForm((current) => ({ ...current, [key]: value }));
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!valid) return;
+    setReference(`EB-${String(Date.now()).slice(-6)}`);
     setSent(true);
   }
 
@@ -78,7 +93,7 @@ export function ContactClient() {
                   Your inquiry has been received. A member of the Estate Brothers team will contact
                   you from our {form.city} network as soon as possible.
                 </p>
-                <span className="ref">Reference · {ref}</span>
+                {reference && <span className="ref">Reference · {reference}</span>}
               </div>
             ) : (
               <>
@@ -165,28 +180,28 @@ export function ContactClient() {
             <div className="aside-block">
               <h3>Speak with us</h3>
               <div className="v">
-                Estate Brothers <span className="serif-i">Real Estate</span>
+                {businessName} <span className="serif-i">Real Estate</span>
               </div>
               <div className="meta">
-                estatebrothers786@gmail.com
+                {email ?? "Email pending"}
                 <br />
-                0325 2222330
+                {phone ?? "Phone pending"}
                 <br />
-                Instagram: estatebrothers1
+                {instagram ? `Instagram: ${instagram}` : "Social links pending"}
               </div>
             </div>
 
             <div className="aside-block">
               <h3>Offices</h3>
               <div className="offices">
-                {offices.map((office) => (
-                  <div className="office" key={office.city}>
+                {(officeItems?.length ? officeItems : offices.map((office) => ({ id: office.city, city: office.city, address: office.addr }))).map((office) => (
+                  <div className="office" key={office.id}>
                     <div className="city">
                       <span className="dot" />
                       {office.city}
                     </div>
                     <div className="addr">
-                      {office.addr.split("\n").map((line) => (
+                      {office.address.split("\n").map((line) => (
                         <span key={line}>
                           {line}
                           <br />

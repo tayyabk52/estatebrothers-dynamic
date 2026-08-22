@@ -22,7 +22,10 @@ export function GalleryCarousel({ gallery, title, listingId }: GalleryCarouselPr
               alt={`${title} selected view`}
               width={900}
               height={600}
-              priority
+              preload
+              sizes="(max-width:768px) 100vw, 900px"
+              placeholder="blur"
+              blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
             />
           </div>
           <div className="gallery-thumbs" aria-label="Listing image thumbnails">
@@ -34,7 +37,7 @@ export function GalleryCarousel({ gallery, title, listingId }: GalleryCarouselPr
                 onClick={() => setActiveImage(index)}
                 aria-label={`View image ${index + 1}`}
               >
-                <Image src={image} alt="" width={120} height={80} />
+                <Image src={image} alt="" width={120} height={80} sizes="120px" />
               </button>
             ))}
           </div>
@@ -49,6 +52,9 @@ export function GalleryCarousel({ gallery, title, listingId }: GalleryCarouselPr
                 width={600}
                 height={400}
                 loading="lazy"
+                sizes="(max-width:640px) 100vw, (max-width:1280px) 50vw, 600px"
+                placeholder="blur"
+                blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
               />
             </div>
           ))}

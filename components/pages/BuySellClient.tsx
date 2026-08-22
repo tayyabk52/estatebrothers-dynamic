@@ -3,7 +3,8 @@ import { FileText, Phone } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getAgent, houseListings, inventoryFilters, plotListings } from "@/data/inventory";
+import type { NormalizedAgent, NormalizedHouse, NormalizedPlot } from "@/lib/types";
+import { DEFAULT_AGENT } from "@/lib/types";
 
 const tabs = [
   { id: "plots", label: "Plots for Sale" },
@@ -17,16 +18,30 @@ interface Filters {
   status: string;
 }
 
-function matchSearch(listing: Record<string, unknown>, agent: Record<string, unknown>, query: string) {
+interface Props {
+  plots: NormalizedPlot[];
+  houses: NormalizedHouse[];
+  agentMap: Record<string, NormalizedAgent>;
+}
+
+function getAgent(agentMap: Record<string, NormalizedAgent>, id: string | null): NormalizedAgent {
+  return (id && agentMap[id]) ? agentMap[id] : DEFAULT_AGENT;
+}
+
+function matchSearch(
+  listing: Record<string, unknown>,
+  agent: NormalizedAgent,
+  query: string
+) {
   if (!query) return true;
   const haystack = [
-    listing.title,
     listing.phase,
     listing.project,
     listing.size,
     listing.price,
     listing.status,
     listing.city,
+    listing.title,
     agent.name,
   ]
     .filter(Boolean)
@@ -35,18 +50,28 @@ function matchSearch(listing: Record<string, unknown>, agent: Record<string, unk
   return haystack.includes(query.toLowerCase());
 }
 
+function buildFilterOptions(items: (NormalizedPlot | NormalizedHouse)[], key: keyof (NormalizedPlot & NormalizedHouse)): string[] {
+  return ["All", ...new Set(items.map((i) => (i as unknown as Record<string, unknown>)[key as string]).filter(Boolean) as string[])];
+}
+
 function FilterBar({
   filters,
   setFilters,
   activeTab,
   setActiveTab,
   resultCount,
+  phaseOptions,
+  sizeOptions,
+  statusOptions,
 }: {
   filters: Filters;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
   activeTab: string;
   setActiveTab: (id: string) => void;
   resultCount: number;
+  phaseOptions: string[];
+  sizeOptions: string[];
+  statusOptions: string[];
 }) {
   const update = (key: string, value: string) =>
     setFilters((current) => ({ ...current, [key]: value }));
@@ -66,39 +91,36 @@ function FilterBar({
             </button>
           ))}
         </div>
-
         <div className="inventory-filters" aria-label="Inventory filters">
           <label className="inventory-search">
             <span>Search</span>
             <input
               value={filters.search}
-              onChange={(event) => update("search", event.target.value)}
+              onChange={(e) => update("search", e.target.value)}
               placeholder="Phase, project, title, contact"
             />
           </label>
-
           {(
             [
-              ["phase", "Phase", inventoryFilters.phases],
-              ["size", "Size", inventoryFilters.sizes],
-              ["status", "Status", inventoryFilters.statuses],
+              ["phase", "Phase", phaseOptions],
+              ["size", "Size", sizeOptions],
+              ["status", "Status", statusOptions],
             ] as [string, string, string[]][]
           ).map(([key, label, options]) => (
             <label className="inventory-select" key={key}>
               <span>{label}</span>
               <select
                 value={filters[key as keyof Filters]}
-                onChange={(event) => update(key, event.target.value)}
+                onChange={(e) => update(key, e.target.value)}
               >
-                {options.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
+                {options.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
                   </option>
                 ))}
               </select>
             </label>
           ))}
-
           <div className="inventory-count mono">{resultCount} shown</div>
         </div>
       </div>
@@ -108,28 +130,30 @@ function FilterBar({
 
 function latestUpdatedAt(listings: { updatedAt?: string }[]) {
   return listings
-    .map((listing) => listing.updatedAt)
+    .map((l) => l.updatedAt)
     .filter(Boolean)
     .sort()
     .at(-1);
 }
 
-function PlotTable({ listings }: { listings: typeof plotListings }) {
+function PlotTable({
+  listings,
+  agentMap,
+}: {
+  listings: NormalizedPlot[];
+  agentMap: Record<string, NormalizedAgent>;
+}) {
   const [openContactId, setOpenContactId] = useState<string | null>(null);
   const tableRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
     if (!openContactId) return undefined;
-
-    const closeOnOutsideClick = (event: PointerEvent) => {
-      if (!tableRef.current?.contains(event.target as Node)) {
-        setOpenContactId(null);
-      }
+    const close = (e: PointerEvent) => {
+      if (!tableRef.current?.contains(e.target as Node)) setOpenContactId(null);
     };
-
-    window.addEventListener("pointerdown", closeOnOutsideClick);
-    return () => window.removeEventListener("pointerdown", closeOnOutsideClick);
+    window.addEventListener("pointerdown", close);
+    return () => window.removeEventListener("pointerdown", close);
   }, [openContactId]);
 
   const openListing = (slug: string) => router.push(`/buy-sell/plot/${slug}`);
@@ -149,16 +173,14 @@ function PlotTable({ listings }: { listings: typeof plotListings }) {
         </thead>
         <tbody>
           {listings.map((listing) => {
-            const agent = getAgent(listing.contactPersonId);
+            const agent = getAgent(agentMap, listing.contactPersonId);
             return (
               <tr
                 key={listing.id}
                 className="clickable-row"
                 tabIndex={0}
                 onClick={() => openListing(listing.slug)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") openListing(listing.slug);
-                }}
+                onKeyDown={(e) => { if (e.key === "Enter") openListing(listing.slug); }}
               >
                 <td data-label="Phase">
                   <strong>{listing.phase}</strong>
@@ -169,10 +191,7 @@ function PlotTable({ listings }: { listings: typeof plotListings }) {
                 <td data-label="Price">{listing.price}</td>
                 <td data-label="Contact Person" className="contact-col">
                   <strong>{agent.name}</strong>
-                  <a
-                    href={`tel:${agent.phone.replace(/\s/g, "")}`}
-                    onClick={(event) => event.stopPropagation()}
-                  >
+                  <a href={`tel:${agent.phone?.replace(/\s/g, "")}`} onClick={(e) => e.stopPropagation()}>
                     {agent.phone}
                   </a>
                 </td>
@@ -183,33 +202,24 @@ function PlotTable({ listings }: { listings: typeof plotListings }) {
                       className="contact-icon-btn"
                       aria-label={`Show contact for ${listing.phase}`}
                       aria-expanded={openContactId === listing.id}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setOpenContactId((current) =>
-                          current === listing.id ? null : listing.id
-                        );
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenContactId((c) => (c === listing.id ? null : listing.id));
                       }}
                     >
-                      <Phone size={13} strokeWidth={2.2} aria-hidden="true" />
+                      <Phone size={13} strokeWidth={2.2} aria-hidden />
                     </button>
-                    <Link
-                      href={`/buy-sell/plot/${listing.slug}`}
-                      className="detail-link"
-                      onClick={(event) => event.stopPropagation()}
-                    >
-                      <FileText size={13} strokeWidth={2} aria-hidden="true" />
+                    <Link href={`/buy-sell/plot/${listing.slug}`} className="detail-link" onClick={(e) => e.stopPropagation()}>
+                      <FileText size={13} strokeWidth={2} aria-hidden />
                       <span>Details</span>
                     </Link>
                   </div>
                   {openContactId === listing.id && (
-                    <div
-                      className="row-contact-popover"
-                      onClick={(event) => event.stopPropagation()}
-                    >
+                    <div className="row-contact-popover" onClick={(e) => e.stopPropagation()}>
                       <strong>{agent.name}</strong>
                       <span>{agent.role}</span>
-                      <a href={`tel:${agent.phone.replace(/\s/g, "")}`}>{agent.phone}</a>
-                      <a href={`https://wa.me/${agent.whatsapp.replace(/\D/g, "")}`}>WhatsApp</a>
+                      <a href={`tel:${agent.phone?.replace(/\s/g, "")}`}>{agent.phone}</a>
+                      <a href={`https://wa.me/${agent.whatsapp?.replace(/\D/g, "")}`}>WhatsApp</a>
                     </div>
                   )}
                 </td>
@@ -222,22 +232,24 @@ function PlotTable({ listings }: { listings: typeof plotListings }) {
   );
 }
 
-function HouseTable({ listings }: { listings: typeof houseListings }) {
+function HouseTable({
+  listings,
+  agentMap,
+}: {
+  listings: NormalizedHouse[];
+  agentMap: Record<string, NormalizedAgent>;
+}) {
   const [openContactId, setOpenContactId] = useState<string | null>(null);
   const tableRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
     if (!openContactId) return undefined;
-
-    const closeOnOutsideClick = (event: PointerEvent) => {
-      if (!tableRef.current?.contains(event.target as Node)) {
-        setOpenContactId(null);
-      }
+    const close = (e: PointerEvent) => {
+      if (!tableRef.current?.contains(e.target as Node)) setOpenContactId(null);
     };
-
-    window.addEventListener("pointerdown", closeOnOutsideClick);
-    return () => window.removeEventListener("pointerdown", closeOnOutsideClick);
+    window.addEventListener("pointerdown", close);
+    return () => window.removeEventListener("pointerdown", close);
   }, [openContactId]);
 
   const openListing = (slug: string) => router.push(`/buy-sell/house/${slug}`);
@@ -258,83 +270,62 @@ function HouseTable({ listings }: { listings: typeof houseListings }) {
           </tr>
         </thead>
         <tbody>
-          {listings.map((listing) => (
-            <tr
-              key={listing.id}
-              className="clickable-row"
-              tabIndex={0}
-              onClick={() => openListing(listing.slug)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") openListing(listing.slug);
-              }}
-            >
-              <td data-label="Property">
-                <strong>{listing.title}</strong>
-                <span>{listing.id}</span>
-              </td>
-              <td data-label="Phase / Location">
-                <strong>{listing.phase}</strong>
-                <span>{listing.city}</span>
-              </td>
-              <td data-label="Size">{listing.size}</td>
-              <td data-label="Beds" className="optional-col">
-                {listing.bedrooms}
-              </td>
-              <td data-label="Baths" className="optional-col">
-                {listing.bathrooms}
-              </td>
-              <td data-label="Price">{listing.price}</td>
-              <td data-label="Status" className="optional-col">
-                <span className="status-pill">{listing.status}</span>
-              </td>
-              <td data-label="Action" className="action-cell">
-                <div className="action-inline">
-                  <button
-                    type="button"
-                    className="contact-icon-btn"
-                    aria-label={`Show contact for ${listing.title}`}
-                    aria-expanded={openContactId === listing.id}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setOpenContactId((current) =>
-                        current === listing.id ? null : listing.id
-                      );
-                    }}
-                  >
-                    <Phone size={13} strokeWidth={2.2} aria-hidden="true" />
-                  </button>
-                  <Link
-                    href={`/buy-sell/house/${listing.slug}`}
-                    className="detail-link"
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    <FileText size={13} strokeWidth={2} aria-hidden="true" />
-                    <span>Details</span>
-                  </Link>
-                </div>
-                {openContactId === listing.id && (
-                  <div
-                    className="row-contact-popover"
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    {(() => {
-                      const agent = getAgent(listing.contactPersonId);
-                      return (
-                        <>
-                          <strong>{agent.name}</strong>
-                          <span>{agent.role}</span>
-                          <a href={`tel:${agent.phone.replace(/\s/g, "")}`}>{agent.phone}</a>
-                          <a href={`https://wa.me/${agent.whatsapp.replace(/\D/g, "")}`}>
-                            WhatsApp
-                          </a>
-                        </>
-                      );
-                    })()}
+          {listings.map((listing) => {
+            const agent = getAgent(agentMap, listing.contactPersonId);
+            return (
+              <tr
+                key={listing.id}
+                className="clickable-row"
+                tabIndex={0}
+                onClick={() => openListing(listing.slug)}
+                onKeyDown={(e) => { if (e.key === "Enter") openListing(listing.slug); }}
+              >
+                <td data-label="Property">
+                  <strong>{listing.title}</strong>
+                  <span className="mono">{listing.id.slice(0, 8)}</span>
+                </td>
+                <td data-label="Phase / Location">
+                  <strong>{listing.phase}</strong>
+                  <span>{listing.city}</span>
+                </td>
+                <td data-label="Size">{listing.size}</td>
+                <td data-label="Beds" className="optional-col">{listing.bedrooms}</td>
+                <td data-label="Baths" className="optional-col">{listing.bathrooms}</td>
+                <td data-label="Price">{listing.price}</td>
+                <td data-label="Status" className="optional-col">
+                  <span className="status-pill">{listing.status}</span>
+                </td>
+                <td data-label="Action" className="action-cell">
+                  <div className="action-inline">
+                    <button
+                      type="button"
+                      className="contact-icon-btn"
+                      aria-label={`Show contact for ${listing.title}`}
+                      aria-expanded={openContactId === listing.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenContactId((c) => (c === listing.id ? null : listing.id));
+                      }}
+                    >
+                      <Phone size={13} strokeWidth={2.2} aria-hidden />
+                    </button>
+                    <Link href={`/buy-sell/house/${listing.slug}`} className="detail-link" onClick={(e) => e.stopPropagation()}>
+                      <FileText size={13} strokeWidth={2} aria-hidden />
+                      <span>Details</span>
+                    </Link>
                   </div>
-                )}
-              </td>
-            </tr>
-          ))}
+                  {openContactId === listing.id && (
+                    <div className="row-contact-popover" onClick={(e) => e.stopPropagation()}>
+                      <strong>{agent.name}</strong>
+                      <span>{agent.role}</span>
+                      <a href={`tel:${agent.phone?.replace(/\s/g, "")}`}>{agent.phone}</a>
+                      <a href={`https://wa.me/${agent.whatsapp?.replace(/\D/g, "")}`}>WhatsApp</a>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -350,7 +341,7 @@ function EmptyState() {
   );
 }
 
-export function BuySellClient() {
+export function BuySellClient({ plots, houses, agentMap }: Props) {
   const [activeTab, setActiveTab] = useState("plots");
   const [filters, setFilters] = useState<Filters>({
     search: "",
@@ -359,25 +350,37 @@ export function BuySellClient() {
     status: "All",
   });
 
-  const source = activeTab === "plots" ? plotListings : houseListings;
+  const source = activeTab === "plots" ? plots : houses;
+
+  const phaseOptions = useMemo(
+    () => buildFilterOptions(source, "phase"),
+    [source]
+  );
+  const sizeOptions = useMemo(
+    () => buildFilterOptions(source, "size"),
+    [source]
+  );
+  const statusOptions = useMemo(
+    () => buildFilterOptions(source, "status"),
+    [source]
+  );
+
   const filtered = useMemo(
     () =>
       source.filter((listing) => {
-        const agent = getAgent(listing.contactPersonId);
+        const agent = getAgent(agentMap, listing.contactPersonId);
         return (
-          matchSearch(
-            listing as unknown as Record<string, unknown>,
-            agent as unknown as Record<string, unknown>,
-            filters.search
-          ) &&
+          matchSearch(listing as unknown as Record<string, unknown>, agent, filters.search) &&
           (filters.phase === "All" || listing.phase === filters.phase) &&
           (filters.size === "All" || listing.size === filters.size) &&
           (filters.status === "All" || listing.status === filters.status)
         );
       }),
-    [source, filters]
+    [source, filters, agentMap]
   );
+
   const updatedAt = latestUpdatedAt(source);
+  const total = plots.length + houses.length;
 
   return (
     <main>
@@ -390,14 +393,13 @@ export function BuySellClient() {
               <span className="serif-i">clear market data.</span>
             </h1>
             <p>
-              A compact inventory for comparing phases, sizes, prices, and contact persons. The
-              current listings are demo data and structured for future Supabase-powered updates.
+              A compact inventory for comparing phases, sizes, prices, and contact persons.
             </p>
           </div>
           <div className="inventory-hero-meta reveal">
             <span className="mono">Inventory</span>
-            <strong>{plotListings.length + houseListings.length}</strong>
-            <span>demo listings</span>
+            <strong>{total}</strong>
+            <span>selected listings</span>
           </div>
         </div>
       </section>
@@ -408,25 +410,27 @@ export function BuySellClient() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         resultCount={filtered.length}
+        phaseOptions={phaseOptions}
+        sizeOptions={sizeOptions}
+        statusOptions={statusOptions}
       />
 
       <section className="inventory-results">
         <div className="wrap">
           <div className="inventory-section-head reveal">
             <div>
-              <h2>{tabs.find((tab) => tab.id === activeTab)?.label}</h2>
+              <h2>{tabs.find((t) => t.id === activeTab)?.label}</h2>
               <span className="inventory-updated mono">
-                Updated at: {updatedAt || "Pending"}
+                Updated: {updatedAt ?? "Pending"}
               </span>
             </div>
             <p>Compact table view for fast comparison. Open a listing for complete details.</p>
           </div>
-
           {filtered.length > 0 ? (
             activeTab === "plots" ? (
-              <PlotTable listings={filtered as typeof plotListings} />
+              <PlotTable listings={filtered as NormalizedPlot[]} agentMap={agentMap} />
             ) : (
-              <HouseTable listings={filtered as typeof houseListings} />
+              <HouseTable listings={filtered as NormalizedHouse[]} agentMap={agentMap} />
             )
           ) : (
             <EmptyState />

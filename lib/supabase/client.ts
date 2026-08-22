@@ -1,4 +1,9 @@
-// Phase 2: replace with createBrowserClient from @supabase/ssr
-export function createBrowserClient() {
-  throw new Error("Supabase not configured yet — Phase 2");
+import { createBrowserClient as _createBrowserClient } from "@supabase/ssr";
+import type { Database } from "./types";
+
+export function createClient() {
+  return _createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 }

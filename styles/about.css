@@ -38,6 +38,7 @@
 .about-offices{background:var(--bone);padding-bottom:92px}
 .office-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--gutter)}
 .office-card{border-top:1px solid var(--rule-strong);display:grid;grid-template-columns:1.08fr .92fr;min-height:380px;background:var(--paper)}
+.office-card-text-only{grid-template-columns:1fr}
 .office-photo{position:relative;overflow:hidden;background:var(--ink)}
 .office-photo img{width:100%;height:100%;object-fit:cover;object-position:58% 50%;filter:saturate(.98) contrast(1.02)}
 .office-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 48%,rgba(0,0,0,.48) 100%);pointer-events:none}

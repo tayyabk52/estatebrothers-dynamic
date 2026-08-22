@@ -1,6 +1,12 @@
 import Link from "next/link";
+import { getSiteSettings } from "@/lib/db/site";
+import { CurrentYear } from "@/components/ui/CurrentYear";
 
-export function Footer() {
+export async function Footer() {
+  const settings = await getSiteSettings();
+  const address = [settings?.address_line_1, settings?.city, settings?.region].filter(Boolean).join(", ");
+  const phoneHref = settings?.phone ? `tel:${settings.phone.replace(/[^\d+]/g, "")}` : null;
+
   return (
     <footer className="footer" id="contact-footer">
       <div className="wrap footer-simple">
@@ -8,7 +14,7 @@ export function Footer() {
           <div className="mark">
             Estate<span className="amp">&amp;</span>Brothers
           </div>
-          <p>Trusted real estate partners for buying, selling, and secure investments.</p>
+          <p>{settings?.tagline ?? "Trusted real estate partners for buying, selling, and secure investments."}</p>
         </div>
 
         <nav className="footer-links" aria-label="Footer">
@@ -20,14 +26,14 @@ export function Footer() {
         </nav>
 
         <div className="footer-contact">
-          <span>44-A Main DHA Office Phase 6, Lahore</span>
-          <a href="tel:+923252222330">0325 2222330</a>
-          <a href="mailto:estatebrothers786@gmail.com">estatebrothers786@gmail.com</a>
+          {address && <span>{address}</span>}
+          {settings?.phone && phoneHref && <a href={phoneHref}>{settings.phone}</a>}
+          {settings?.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}
         </div>
 
         <div className="footer-bot">
-          <span>© 2026 Estate Brothers</span>
-          <span>Real estate and investment services</span>
+          <span>© <CurrentYear /> {settings?.business_name ?? "Estate Brothers"}</span>
+          <span>{settings?.business_description ?? "Real estate and investment services"}</span>
         </div>
       </div>
     </footer>

@@ -5,6 +5,7 @@ import {
   buildRealEstateAgentSchema,
   buildWebSiteSchema,
 } from "@/lib/seo/structured-data";
+import { getSiteSettings } from "@/lib/db/site";
 import "@/styles/shared.css";
 
 const inter = Inter({
@@ -26,16 +27,19 @@ const instrumentSerif = Instrument_Serif({
   weight: "400",
   style: ["normal", "italic"],
   variable: "--font-serif",
-  display: "swap",
+  display: "optional",
   adjustFontFallback: true,
 });
 
 const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-  display: "swap",
+  display: "optional",
   adjustFontFallback: true,
 });
+
+const googleVerification = process.env.NEXT_PUBLIC_GSC_VERIFICATION;
+const bingVerification = process.env.NEXT_PUBLIC_BING_VERIFICATION;
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://estatebrothers.pk"),
@@ -44,12 +48,26 @@ export const metadata: Metadata = {
     template: "%s | Estate Brothers",
   },
   description:
-    "Buy, sell, and invest in property across Lahore, Karachi, and Islamabad with Estate Brothers — Pakistan's trusted real estate team.",
+    "Buy, sell, and invest in property across Lahore, Karachi, and Islamabad with Estate Brothers - Pakistan's trusted real estate team.",
+  alternates: { canonical: "https://estatebrothers.pk" },
+  // Verification tokens: set env vars after obtaining them from Google Search Console and Bing Webmaster Tools.
+  verification: {
+    ...(googleVerification ? { google: googleVerification } : {}),
+    ...(bingVerification ? { other: { "msvalidate.01": bingVerification } } : {}),
+  },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const orgSchema = buildOrganizationSchema();
-  const agentSchema = buildRealEstateAgentSchema();
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getSiteSettings();
+  const orgSchema = buildOrganizationSchema(settings);
+  const agentSchema = buildRealEstateAgentSchema(settings);
   const websiteSchema = buildWebSiteSchema();
 
   return (
@@ -71,7 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <div id="scrollBar" aria-hidden="true" />
         {children}
       </body>
