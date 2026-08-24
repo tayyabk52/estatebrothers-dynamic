@@ -3,10 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/auth";
 import { getUpdateByIdAdmin, getUpdateLinksAdmin } from "@/lib/db/updates";
-import { updateUpdate, deleteUpdate } from "../../actions";
+import { updateUpdate, deleteUpdate, updateUpdateMediaItem, removeUpdateMediaItem } from "../../actions";
 import { DeleteButton } from "@/components/ui/DeleteButton";
 import { SeoQualityWidget } from "@/components/admin/SeoQualityWidget";
 import { SlugFieldWithWarning } from "@/components/admin/SlugFieldWithWarning";
+import { ExistingMediaManager } from "@/components/admin/ExistingMediaManager";
 
 export const metadata: Metadata = { title: "Edit Update" };
 
@@ -28,6 +29,7 @@ export default async function EditUpdatePage({ params }: Props) {
 
   const updateWithId = updateUpdate.bind(null, id);
   const deleteWithId = deleteUpdate.bind(null, id);
+  const existingMedia = update.update_media ?? [];
 
   return (
     <div className="admin-page">
@@ -143,7 +145,7 @@ export default async function EditUpdatePage({ params }: Props) {
             author_id: update.author_id,
             tags: update.tags,
             slug: update.slug,
-            has_media: Boolean(update.thumbnail_url || update.og_image),
+            has_media: Boolean(update.thumbnail_url || update.og_image || existingMedia.length),
           }}
         />
 
@@ -178,6 +180,15 @@ export default async function EditUpdatePage({ params }: Props) {
           <button type="submit" className="admin-btn admin-btn-primary">Save changes</button>
         </div>
       </form>
+
+      <ExistingMediaManager
+        title="Existing media"
+        emptyText="No media is currently attached to this update."
+        items={existingMedia}
+        featuredLabel="Featured update image"
+        updateActionFor={(item) => updateUpdateMediaItem.bind(null, id, item.id)}
+        removeActionFor={(item) => removeUpdateMediaItem.bind(null, id, item.id)}
+      />
     </div>
   );
 }

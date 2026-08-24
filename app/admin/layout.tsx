@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { connection } from "next/server";
+import { Suspense } from "react";
+import { AdminShellChrome } from "@/components/admin/AdminShellChrome";
 import { AdminLogoutButton } from "@/components/ui/AdminLogoutButton";
 import "@/styles/admin.css";
 
@@ -15,32 +17,26 @@ const navLinks = [
   { href: "/admin/team", label: "Team" },
   { href: "/admin/offices", label: "Offices" },
   { href: "/admin/pages", label: "Pages" },
+  { href: "/admin/seo-landing-pages", label: "SEO landing pages" },
   { href: "/admin/site", label: "Site settings" },
 ];
 
+async function DynamicMarker() {
+  await connection();
+  return null;
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="admin-shell">
-      <aside className="admin-sidebar">
-        <div className="admin-sidebar-brand">
-          <span>Estate Brothers</span>
-          <span className="admin-sidebar-tag">Admin</span>
-        </div>
-        <nav className="admin-nav">
-          {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="admin-nav-link">
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="admin-sidebar-footer">
-          <Link href="/" className="admin-nav-link admin-nav-link-muted">
-            ← View site
-          </Link>
-          <AdminLogoutButton />
-        </div>
-      </aside>
-      <main className="admin-main">{children}</main>
-    </div>
+    <>
+      <Suspense fallback={null}>
+        <DynamicMarker />
+      </Suspense>
+      <Suspense fallback={null}>
+        <AdminShellChrome navLinks={navLinks} logoutSlot={<AdminLogoutButton />}>
+          {children}
+        </AdminShellChrome>
+      </Suspense>
+    </>
   );
 }

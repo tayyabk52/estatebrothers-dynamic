@@ -1,10 +1,10 @@
 "use client";
 import { ExternalLink, FileText } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { NormalizedUpdate } from "@/lib/types";
 import { formatUpdateDate, updateTypeLabels } from "@/lib/db/updates-utils";
+import { SafeMediaImage } from "@/components/ui/SafeMediaImage";
 
 const updateTypeTabs = [
   { id: "all", label: "All updates" },
@@ -87,7 +87,7 @@ function FeaturedUpdate({ update }: { update: NormalizedUpdate }) {
         </div>
       </div>
       <div className="updates-feature-media">
-        <Image src={update.media.url} alt={update.media.alt} width={800} height={500} loading="eager" />
+        <SafeMediaImage src={update.media.url} alt={update.media.alt} width={800} height={500} loading="eager" />
       </div>
     </article>
   );
@@ -97,7 +97,7 @@ function UpdateCard({ update }: { update: NormalizedUpdate }) {
   return (
     <article id={update.slug} className="update-card reveal">
       <div className="update-thumb">
-        <Image src={update.media.url} alt={update.media.alt} width={400} height={250} loading="lazy" />
+        <SafeMediaImage src={update.media.url} alt={update.media.alt} width={400} height={250} loading="lazy" />
       </div>
       <div className="update-content">
         <header>

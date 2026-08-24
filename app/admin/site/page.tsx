@@ -56,11 +56,16 @@ export default async function SiteSettingsPage() {
           <label className="admin-field">Default meta description<textarea name="default_meta_description" rows={2} defaultValue={settings?.default_meta_description ?? ""} /></label>
           <label className="admin-field">Default OG image URL<input name="default_og_image" defaultValue={settings?.default_og_image ?? ""} /></label>
           <label className="admin-field">Logo URL<input name="logo_url" defaultValue={settings?.logo_url ?? ""} /></label>
+          <label className="admin-field">Price range / currency label<input name="price_range" defaultValue={settings?.price_range ?? "PKR"} placeholder="PKR / PKR-PKR" /></label>
           <label className="admin-field">Service areas (comma separated)<input name="service_areas" defaultValue={(settings?.service_areas ?? []).join(", ")} /></label>
           <label className="admin-field">Knows about (comma separated)<input name="knows_about" defaultValue={(settings?.knows_about ?? []).join(", ")} /></label>
           <div className="admin-field-row">
             <label className="admin-field">Facebook<input name="facebook" defaultValue={socials.facebook ?? ""} /></label>
             <label className="admin-field">Instagram<input name="instagram" defaultValue={socials.instagram ?? ""} /></label>
+          </div>
+          <div className="admin-field-row">
+            <label className="admin-field">LinkedIn<input name="linkedin" defaultValue={socials.linkedin ?? ""} /></label>
+            <label className="admin-field">YouTube<input name="youtube" defaultValue={socials.youtube ?? ""} /></label>
           </div>
           <div className="admin-field-row">
             <label className="admin-field">Google verification<input name="google_site_verification" defaultValue={settings?.google_site_verification ?? ""} /></label>

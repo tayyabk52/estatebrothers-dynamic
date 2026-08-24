@@ -16,6 +16,9 @@ export interface NormalizedPlot {
   availability: string | null;
   noindex: boolean;
   contactPersonId: string | null;
+  thumbnail?: string | null;
+  gallery: string[];
+  ogImage?: string | null;
   notes: string | null;
   updatedAt: string;
 }
@@ -65,6 +68,16 @@ export interface NormalizedAgent {
   whatsapp: string | null;
   email: string | null;
   imageUrl?: string | null;
+  imageAlt?: string | null;
+  slug?: string | null;
+  profilePath?: string | null;
+  profileSummary?: string | null;
+  profileBody?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImage?: string | null;
+  keywords?: string[];
+  updatedAt?: string;
 }
 
 export interface NormalizedUpdate {

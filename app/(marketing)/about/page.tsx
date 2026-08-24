@@ -1,14 +1,29 @@
 import Image from "next/image";
-import { getPublishedPage, getPublishedOfficeLocations, mediaUrl } from "@/lib/db/site";
+import Link from "next/link";
+import {
+  getPublishedPage,
+  getPublishedOfficeLocations,
+  mediaUrl,
+  type PageBlockWithMedia,
+  type PageSectionWithBlocks,
+} from "@/lib/db/site";
 import { getPublishedTeamMembers } from "@/lib/db/team";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { buildPersonSchema } from "@/lib/seo/structured-data";
 import "@/styles/about.css";
 
+const SITE_URL = "https://estatebrothers.pk";
+const SITE_NAME = "Estate Brothers";
+
+function cleanTitle(title?: string | null) {
+  const normalized = (title || "About Estate Brothers").trim();
+  return normalized.replace(/\s+\|\s+Estate Brothers$/i, "");
+}
+
 export async function generateMetadata() {
   const page = await getPublishedPage("/about");
   return buildMetadata({
-    title: page?.meta_title ?? "About",
+    title: cleanTitle(page?.meta_title),
     description: page?.meta_description,
     canonicalPath: "/about",
     image: page?.og_image ?? mediaUrl(page?.hero_media) ?? "/og-default.jpg",
@@ -31,6 +46,325 @@ function EmptyAbout() {
   );
 }
 
+function publishedBlocks(section: PageSectionWithBlocks) {
+  return (section.page_blocks ?? [])
+    .filter((block) => block.status === "published")
+    .sort((a, b) => a.sort_order - b.sort_order);
+}
+
+function attrString(block: PageBlockWithMedia, key: string) {
+  const attrs = block.attributes;
+  if (!attrs || typeof attrs !== "object" || Array.isArray(attrs)) return "";
+  const value = (attrs as Record<string, unknown>)[key];
+  return typeof value === "string" || typeof value === "number" ? String(value) : "";
+}
+
+function blockImage(block: PageBlockWithMedia) {
+  return mediaUrl(block.media_assets);
+}
+
+function imageAlt(block: PageBlockWithMedia, fallback: string) {
+  return block.media_assets?.alt_text ?? fallback;
+}
+
+function SectionHead({ section, id }: { section: PageSectionWithBlocks; id: string }) {
+  return (
+    <header className="about-section-head reveal">
+      {section.eyebrow && <div className="eyebrow">{section.eyebrow}</div>}
+      <div>
+        {section.heading && <h2 id={id}>{section.heading}</h2>}
+        {section.subheading && <p>{section.subheading}</p>}
+      </div>
+    </header>
+  );
+}
+
+function ProofSection({ section }: { section: PageSectionWithBlocks }) {
+  const blocks = publishedBlocks(section);
+  if (!blocks.length) return null;
+  return (
+    <section className="about-proof" aria-label={section.heading ?? "Estate Brothers proof points"}>
+      <div className="wrap">
+        {blocks.map((block) => (
+          <div className="proof-cell reveal" key={block.id}>
+            <span className="value">{block.title}</span>
+            <span className="label">{block.body}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ServicesSection({ section }: { section: PageSectionWithBlocks }) {
+  const blocks = publishedBlocks(section);
+  return (
+    <section className="about-section about-services" aria-labelledby={`${section.id}-title`}>
+      <div className="wrap">
+        <SectionHead section={section} id={`${section.id}-title`} />
+        {blocks.length > 0 ? (
+          <div className="pillar-grid">
+            {blocks.map((block, index) => (
+              <article className="pillar reveal" key={block.id}>
+                <span className="mono">{String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  {block.title && <h3>{block.title}</h3>}
+                  {block.body && <p>{block.body}</p>}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          section.body && <p>{section.body}</p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function AwardsSection({ section }: { section: PageSectionWithBlocks }) {
+  const blocks = publishedBlocks(section);
+  if (!blocks.length) return null;
+  return (
+    <section className="about-section about-posts" aria-labelledby={`${section.id}-title`}>
+      <div className="wrap">
+        <SectionHead section={section} id={`${section.id}-title`} />
+      </div>
+      <div className="about-carousel posts-carousel" aria-label={section.heading ?? "Estate Brothers awards and recognition"}>
+        {blocks.map((block) => {
+          const image = blockImage(block);
+          const label = block.icon_name || attrString(block, "type") || "Recognition";
+          return (
+            <article className="post-card reveal" key={block.id}>
+              {image && (
+                <div className="post-image">
+                  <Image
+                    src={image}
+                    alt={imageAlt(block, block.title ?? "Estate Brothers recognition")}
+                    width={600}
+                    height={450}
+                    loading="lazy"
+                    sizes="(max-width:768px) 82vw, 378px"
+                  />
+                  <span>{label}</span>
+                </div>
+              )}
+              <div className="post-copy">
+                <span className="mono">{attrString(block, "issuer") || SITE_NAME}</span>
+                {block.title && <h3>{block.title}</h3>}
+                {block.body && <p>{block.body}</p>}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function StoryPoster({ block }: { block: PageBlockWithMedia }) {
+  const image = blockImage(block);
+  const initials = attrString(block, "storyCode") || (block.link_label ?? block.title ?? "EB").slice(0, 2);
+  if (image) {
+    return (
+      <div className="story-poster">
+        <Image
+          src={image}
+          alt={imageAlt(block, block.title ?? "Estate Brothers team story")}
+          width={640}
+          height={400}
+          loading="lazy"
+          sizes="(max-width:768px) 100vw, 33vw"
+        />
+        <span className="story-play" aria-hidden="true"><span /></span>
+      </div>
+    );
+  }
+  return (
+    <div className="story-poster" aria-hidden="true">
+      <span className="story-initials">{initials}</span>
+      <span className="story-play"><span /></span>
+    </div>
+  );
+}
+
+function TeamStoriesSection({ section }: { section: PageSectionWithBlocks }) {
+  const blocks = publishedBlocks(section);
+  if (!blocks.length) return null;
+  return (
+    <section className="about-videos" aria-labelledby={`${section.id}-title`}>
+      <div className="wrap">
+        <SectionHead section={section} id={`${section.id}-title`} />
+        <div className="video-story-grid">
+          {blocks.map((block, index) => (
+            <article className="video-story reveal" key={block.id}>
+              <span className="story-index mono">{String(index + 1).padStart(2, "0")}</span>
+              <StoryPoster block={block} />
+              <div className="story-copy">
+                <div className="story-meta">
+                  <span>{attrString(block, "storyCode") || block.icon_name || "EB"}</span>
+                  <span>{attrString(block, "duration") || block.icon_name}</span>
+                </div>
+                {block.title && <h3>{block.title}</h3>}
+                {block.body && <p>{block.body}</p>}
+                <div className="story-person">
+                  <span className="name">{block.link_label || attrString(block, "person") || SITE_NAME}</span>
+                  <span className="role">{attrString(block, "role") || "Estate Brothers"}</span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function OperatingSection({ section }: { section: PageSectionWithBlocks }) {
+  const blocks = publishedBlocks(section);
+  return (
+    <section className="about-operating" aria-labelledby={`${section.id}-title`}>
+      <div className="wrap">
+        <div className="operating-title reveal">
+          {section.eyebrow && <div className="eyebrow">{section.eyebrow}</div>}
+          {section.heading && <h2 id={`${section.id}-title`}>{section.heading}</h2>}
+        </div>
+        <div className="operating-list">
+          {(blocks.length ? blocks : []).map((block, index) => (
+            <div className="operating-row reveal" key={block.id}>
+              <span className="mono">{String(index + 1).padStart(2, "0")}</span>
+              <p>{block.body || block.title}</p>
+            </div>
+          ))}
+          {!blocks.length && section.body && (
+            <div className="operating-row reveal">
+              <span className="mono">01</span>
+              <p>{section.body}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BranchesSection({ section }: { section: PageSectionWithBlocks }) {
+  const blocks = publishedBlocks(section);
+  return (
+    <section className="about-branches" aria-labelledby={`${section.id}-title`}>
+      <div className="wrap">
+        <div className="branch-panel reveal">
+          <div>
+            {section.eyebrow && <div className="eyebrow">{section.eyebrow}</div>}
+            {section.heading && <h2 id={`${section.id}-title`}>{section.heading}</h2>}
+          </div>
+          <div className="branch-list">
+            {(blocks.length ? blocks : [{ id: section.id, body: section.body }]).map((block) => (
+              <p key={block.id}>{block.body}</p>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function GenericSection({ section }: { section: PageSectionWithBlocks }) {
+  const blocks = publishedBlocks(section);
+  const image = mediaUrl(section.media_assets);
+  return (
+    <section className="about-section" aria-labelledby={`${section.id}-title`}>
+      <div className="wrap">
+        <SectionHead section={section} id={`${section.id}-title`} />
+        {image && (
+          <div className="post-image reveal">
+            <Image
+              src={image}
+              alt={section.media_assets?.alt_text ?? section.heading ?? section.eyebrow ?? "Estate Brothers"}
+              width={900}
+              height={600}
+              loading="lazy"
+              sizes="(max-width:768px) 100vw, 900px"
+            />
+          </div>
+        )}
+        {section.body && <p>{section.body}</p>}
+        {blocks.length > 0 && (
+          <div className="pillar-grid">
+            {blocks.map((block, index) => (
+              <article className="pillar reveal" key={block.id}>
+                <span className="mono">{String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  {block.title && <h3>{block.title}</h3>}
+                  {block.body && <p>{block.body}</p>}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function AboutCmsSection({ section }: { section: PageSectionWithBlocks }) {
+  if (section.section_key === "about-proof") return <ProofSection section={section} />;
+  if (section.section_key === "services") return <ServicesSection section={section} />;
+  if (section.section_key === "awards-recognition") return <AwardsSection section={section} />;
+  if (section.section_key === "team-stories") return <TeamStoriesSection section={section} />;
+  if (section.section_key === "operating-model") return <OperatingSection section={section} />;
+  if (section.section_key === "branches-support") return <BranchesSection section={section} />;
+  return <GenericSection section={section} />;
+}
+
+function aboutStructuredData(sections: PageSectionWithBlocks[]) {
+  const awards = sections
+    .find((section) => section.section_key === "awards-recognition")
+    ? publishedBlocks(sections.find((section) => section.section_key === "awards-recognition")!)
+    : [];
+  const stories = sections
+    .find((section) => section.section_key === "team-stories")
+    ? publishedBlocks(sections.find((section) => section.section_key === "team-stories")!)
+    : [];
+
+  const schemas: object[] = [];
+  if (awards.length) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+      award: awards.map((award) => award.title).filter(Boolean),
+      hasCredential: awards
+        .filter((award) => /registration|certificate|membership|taxpayer|dnbfp|dnfbp/i.test(`${award.title} ${award.icon_name}`))
+        .map((award) => ({
+          "@type": "EducationalOccupationalCredential",
+          name: award.title,
+          description: award.body,
+          image: blockImage(award),
+        })),
+    });
+  }
+
+  stories.forEach((story) => {
+    const videoUrl = attrString(story, "videoUrl") || story.media_assets?.embed_url || story.media_assets?.external_url;
+    if (!videoUrl) return;
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      name: story.title,
+      description: story.body,
+      thumbnailUrl: blockImage(story),
+      uploadDate: attrString(story, "uploadDate") || undefined,
+      duration: attrString(story, "durationIso") || undefined,
+      embedUrl: story.media_assets?.embed_url || undefined,
+      contentUrl: videoUrl,
+    });
+  });
+
+  return schemas;
+}
+
 export default async function AboutPage() {
   const [page, teamMembers, offices] = await Promise.all([
     getPublishedPage("/about"),
@@ -41,6 +375,10 @@ export default async function AboutPage() {
   if (!page) return <EmptyAbout />;
 
   const heroImage = mediaUrl(page.hero_media);
+  const sections = page.page_sections ?? [];
+  const proofSection = sections.find((section) => section.section_key === "about-proof");
+  const remainingSections = sections.filter((section) => section.section_key !== "about-proof");
+  const sectionSchemas = aboutStructuredData(sections);
   const personSchemas = teamMembers.map((member) =>
     buildPersonSchema({
       name: member.name,
@@ -55,6 +393,13 @@ export default async function AboutPage() {
       {personSchemas.map((schema) => (
         <script
           key={schema.name}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
+      {sectionSchemas.map((schema, index) => (
+        <script
+          key={`about-schema-${index}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
@@ -82,6 +427,8 @@ export default async function AboutPage() {
           )}
         </div>
       </section>
+
+      {proofSection && <ProofSection section={proofSection} />}
 
       {offices.length > 0 && (
         <section className="about-section about-offices" aria-labelledby="about-offices-title">
@@ -158,6 +505,7 @@ export default async function AboutPage() {
                 <div className="team-copy">
                   {member.role && <span className="role">{member.role}</span>}
                   <h3>{member.name}</h3>
+                  {member.profilePath && <Link href={member.profilePath}>View profile</Link>}
                   {member.phone && <a href={`tel:${member.phone.replace(/\s/g, "")}`}>{member.phone}</a>}
                 </div>
               </article>
@@ -173,20 +521,7 @@ export default async function AboutPage() {
         )}
       </section>
 
-      {(page.page_sections ?? []).map((section) => (
-        <section className="about-section" key={section.id}>
-          <div className="wrap">
-            <header className="about-section-head reveal">
-              {section.eyebrow && <div className="eyebrow">{section.eyebrow}</div>}
-              <div>
-                {section.heading && <h2>{section.heading}</h2>}
-                {section.subheading && <p>{section.subheading}</p>}
-              </div>
-            </header>
-            {section.body && <p>{section.body}</p>}
-          </div>
-        </section>
-      ))}
+      {remainingSections.map((section) => <AboutCmsSection section={section} key={section.id} />)}
     </main>
   );
 }

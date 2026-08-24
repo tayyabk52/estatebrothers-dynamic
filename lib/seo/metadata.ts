@@ -32,7 +32,9 @@ export function buildMetadata({
   authors,
 }: BuildMetadataOptions): Metadata {
   const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
-  const canonicalUrl = `${SITE_URL}${canonicalPath}`;
+  const canonicalUrl = canonicalPath.startsWith("http")
+    ? canonicalPath
+    : `${SITE_URL}${canonicalPath.startsWith("/") ? canonicalPath : `/${canonicalPath}`}`;
   const ogImage = image.startsWith("/") ? `${SITE_URL}${image}` : image;
   const robots: Metadata["robots"] = noIndex
     ? { index: false, follow: false }
@@ -49,7 +51,7 @@ export function buildMetadata({
       };
 
   return {
-    title: fullTitle,
+    title: { absolute: fullTitle },
     description,
     keywords,
     metadataBase: new URL(SITE_URL),

@@ -7,11 +7,19 @@ const TABLE_TAG_MAP: Record<string, string[]> = {
   pages: ["all-pages"],
   page_sections: ["all-pages"],
   page_blocks: ["all-pages"],
+  media_assets: ["all-pages", "all-listings", "updates", "team", "offices", "site-settings", "seo-landing-pages", "seo-pages"],
   site_settings: ["site-settings"],
   team_members: ["team"],
   updates: ["updates"],
+  update_links: ["updates"],
+  update_media: ["updates"],
   faqs: ["faqs"],
   office_locations: ["offices"],
+  listing_media: ["all-listings"],
+  seo_landing_pages: ["seo-landing-pages"],
+  seo_pages: ["seo-pages"],
+  seo_redirects: ["redirects"],
+  seo_url_rules: ["seo-url-rules"],
 };
 
 export async function POST(request: NextRequest) {
@@ -48,11 +56,23 @@ export async function POST(request: NextRequest) {
   if (table === "pages" && record?.route_path) {
     revalidateTag(`page-${record.route_path}`, "max");
   }
+  if (table === "seo_landing_pages" && record?.canonical_path) {
+    revalidateTag(`seo-landing-${record.canonical_path}`, "max");
+  }
+  if (table === "seo_pages" && record?.route_path) {
+    revalidateTag(`seo-page-${record.route_path}`, "max");
+  }
+  if (table === "seo_url_rules" && record?.source_pattern) {
+    revalidateTag(`seo-url-rule-${record.source_pattern}`, "max");
+  }
   if (table === "updates" && record?.slug) {
     revalidateTag(`update-${record.slug}`, "max");
   }
   if (table === "team_members" && record?.id) {
     revalidateTag(`team-member-${record.id}`, "max");
+  }
+  if (table === "team_members" && record?.slug) {
+    revalidateTag(`team-profile-${record.slug}`, "max");
   }
 
   return NextResponse.json({

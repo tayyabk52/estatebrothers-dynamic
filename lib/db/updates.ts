@@ -6,14 +6,18 @@ import type { NormalizedUpdate } from "@/lib/types";
 import type { UpdateRow } from "@/lib/supabase/types";
 
 type UpdateMediaJoin = {
+  id: string;
+  media_id: string;
   sort_order: number;
   is_featured: boolean;
+  is_inline?: boolean;
   is_og_candidate: boolean;
   media_assets?: {
     public_url: string | null;
     external_url: string | null;
     embed_url: string | null;
     thumbnail_url: string | null;
+    title: string | null;
     alt_text: string | null;
     media_type: string;
     status: string;
@@ -21,7 +25,7 @@ type UpdateMediaJoin = {
 };
 
 type UpdateLinkJoin = { label: string; url: string; kind: string; sort_order: number };
-type UpdateWithRelations = UpdateRow & {
+export type UpdateWithRelations = UpdateRow & {
   content_authors?: { name: string } | null;
   update_links?: UpdateLinkJoin[] | null;
   update_media?: UpdateMediaJoin[] | null;
@@ -101,6 +105,7 @@ export async function getPublishedUpdateBySlug(slug: string): Promise<Normalized
     .select(UPDATE_SELECT)
     .eq("slug", slug)
     .eq("status", "published")
+    .eq("has_detail_page", true)
     .single();
 
   return data ? rowToUpdate(data as UpdateWithRelations) : null;
@@ -132,15 +137,15 @@ export async function getAllUpdatesAdmin() {
   return data ?? [];
 }
 
-export async function getUpdateByIdAdmin(id: string): Promise<UpdateRow | null> {
+export async function getUpdateByIdAdmin(id: string): Promise<UpdateWithRelations | null> {
   await assertAdmin();
   const supabase = await createClient();
   const { data } = await supabase
     .from("updates")
-    .select("*")
+    .select(UPDATE_SELECT)
     .eq("id", id)
     .maybeSingle();
-  return data as UpdateRow | null;
+  return data as UpdateWithRelations | null;
 }
 
 export async function getUpdateLinksAdmin(id: string) {

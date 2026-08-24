@@ -1,13 +1,22 @@
 import Link from "next/link";
 import type { TeamMemberRow } from "@/lib/supabase/types";
 
+type TeamFormMember = TeamMemberRow & {
+  image_media?: { alt_text: string | null } | null;
+  og_media?: { public_url: string | null; external_url: string | null; thumbnail_url: string | null } | null;
+};
+
 export function TeamForm({
   action,
   member,
 }: {
   action: (formData: FormData) => void | Promise<void>;
-  member?: TeamMemberRow;
+  member?: TeamFormMember;
 }) {
+  const profilePath =
+    member?.has_profile_page ? member.canonical_path || (member.slug ? `/team/${member.slug}` : "") : "";
+  const ogImage = member?.og_image ?? member?.og_media?.public_url ?? member?.og_media?.external_url ?? member?.og_media?.thumbnail_url ?? "";
+
   return (
     <form action={action} className="admin-form">
       <div className="admin-form-section">
@@ -30,6 +39,8 @@ export function TeamForm({
         <h2>Profile image</h2>
         <input type="hidden" name="existing_image_media_id" value={member?.image_media_id ?? ""} />
         <input type="hidden" name="existing_image_url" value={member?.image_url ?? ""} />
+        <input type="hidden" name="existing_og_media_id" value={member?.og_media_id ?? ""} />
+        <input type="hidden" name="existing_og_image" value={ogImage} />
         <label className="admin-field">
           Upload image
           <input type="file" name="team_image" accept="image/*" />
@@ -38,6 +49,24 @@ export function TeamForm({
           Image URL
           <input name="image_url" placeholder="/images/team/name.jpg or https://..." defaultValue={member?.image_url ?? ""} />
         </label>
+        <label className="admin-field">
+          Image alt text
+          <input
+            name="image_alt_text"
+            placeholder="e.g. Abdul Rehman, Estate Brothers property consultant in DHA Lahore"
+            defaultValue={member?.image_media?.alt_text ?? (member?.name ? `${member.name}${member.job_title ? `, ${member.job_title}` : ""}` : "")}
+          />
+        </label>
+        <div className="admin-field-row">
+          <label className="admin-field">
+            Upload OG image
+            <input type="file" name="team_og_image" accept="image/*" />
+          </label>
+          <label className="admin-field">
+            OG image URL
+            <input name="og_image" placeholder="/og-default.jpg or https://..." defaultValue={ogImage} />
+          </label>
+        </div>
       </div>
 
       <div className="admin-form-section">
@@ -56,13 +85,35 @@ export function TeamForm({
             <input type="checkbox" name="public_profile" value="true" defaultChecked={member?.public_profile ?? false} />
             Show publicly on About page
           </label>
+          <label className="admin-field admin-field-check" style={{ alignSelf: "flex-end" }}>
+            <input type="checkbox" name="has_profile_page" value="true" defaultChecked={member?.has_profile_page ?? false} />
+            Create SEO profile page
+          </label>
         </div>
+        {profilePath && (
+          <p className="admin-field-hint">Canonical profile path: <span className="mono">{profilePath}</span></p>
+        )}
       </div>
 
       <div className="admin-form-section">
-        <h2>SEO</h2>
+        <h2>SEO profile content</h2>
+        <label className="admin-field">
+          Profile summary
+          <textarea name="profile_summary" rows={2} maxLength={260} defaultValue={member?.profile_summary ?? ""} />
+        </label>
+        <label className="admin-field">
+          Full profile body
+          <textarea name="profile_body" rows={8} defaultValue={member?.profile_body ?? ""} />
+        </label>
+        <label className="admin-field">
+          Keywords / expertise (comma separated)
+          <input name="keywords" defaultValue={(member?.keywords ?? []).join(", ")} placeholder="DHA Lahore, plots, investment advisory" />
+        </label>
         <label className="admin-field">Meta title<input name="meta_title" maxLength={70} defaultValue={member?.meta_title ?? ""} /></label>
         <label className="admin-field">Meta description<textarea name="meta_description" rows={2} maxLength={180} defaultValue={member?.meta_description ?? ""} /></label>
+        <p className="admin-field-hint">
+          Published SEO profile pages require job title, image, alt text, summary, full body, keywords, and meta description.
+        </p>
       </div>
 
       <div className="admin-form-actions">

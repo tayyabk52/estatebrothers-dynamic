@@ -190,7 +190,11 @@ function PlotTable({
                 <td data-label="Size">{listing.size}</td>
                 <td data-label="Price">{listing.price}</td>
                 <td data-label="Contact Person" className="contact-col">
-                  <strong>{agent.name}</strong>
+                  {agent.profilePath ? (
+                    <Link href={agent.profilePath} onClick={(e) => e.stopPropagation()}><strong>{agent.name}</strong></Link>
+                  ) : (
+                    <strong>{agent.name}</strong>
+                  )}
                   <a href={`tel:${agent.phone?.replace(/\s/g, "")}`} onClick={(e) => e.stopPropagation()}>
                     {agent.phone}
                   </a>
@@ -217,6 +221,7 @@ function PlotTable({
                   {openContactId === listing.id && (
                     <div className="row-contact-popover" onClick={(e) => e.stopPropagation()}>
                       <strong>{agent.name}</strong>
+                      {agent.profilePath && <Link href={agent.profilePath}>View profile</Link>}
                       <span>{agent.role}</span>
                       <a href={`tel:${agent.phone?.replace(/\s/g, "")}`}>{agent.phone}</a>
                       <a href={`https://wa.me/${agent.whatsapp?.replace(/\D/g, "")}`}>WhatsApp</a>
@@ -317,6 +322,7 @@ function HouseTable({
                   {openContactId === listing.id && (
                     <div className="row-contact-popover" onClick={(e) => e.stopPropagation()}>
                       <strong>{agent.name}</strong>
+                      {agent.profilePath && <Link href={agent.profilePath}>View profile</Link>}
                       <span>{agent.role}</span>
                       <a href={`tel:${agent.phone?.replace(/\s/g, "")}`}>{agent.phone}</a>
                       <a href={`https://wa.me/${agent.whatsapp?.replace(/\D/g, "")}`}>WhatsApp</a>

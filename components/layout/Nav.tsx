@@ -20,6 +20,31 @@ function BrandLogo() {
   );
 }
 
+export function NavFallback() {
+  return (
+    <nav className="nav">
+      <div className="nav-inner">
+        <Link href="/" className="nav-brand" aria-label="Estate Brothers home">
+          <BrandLogo />
+        </Link>
+        <div className="nav-links">
+          {links.slice(0, 4).map((link) => (
+            <Link key={link.key} href={link.href}>
+              {link.label}
+            </Link>
+          ))}
+        </div>
+        <div className="nav-right">
+          <Link href="/contact" className="nav-btn">
+            <span>Contact Us</span>
+            <span className="arrow">-&gt;</span>
+          </Link>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 export function Nav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();

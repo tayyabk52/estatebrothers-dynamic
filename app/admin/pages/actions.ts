@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { assertAdmin } from "@/lib/admin/auth";
 import { createExternalMediaAsset, createUploadedMediaAsset } from "@/lib/admin/media";
+import { recordRedirect } from "@/lib/db/redirects";
 import { createClient } from "@/lib/supabase/server";
 import type { Database, Json } from "@/lib/supabase/types";
 
@@ -28,7 +29,7 @@ function blockAttributesFromForm(formData: FormData): Json {
   const advanced = jsonObjectFromField(formData, "attributes");
   const sectionKey = String(formData.get("section_key") || "");
 
-  if (sectionKey === "hero-stats" || sectionKey === "testimonial-stats") {
+  if (sectionKey === "hero-stats" || sectionKey === "testimonial-stats" || sectionKey === "about-proof") {
     return {
       ...(advanced && typeof advanced === "object" && !Array.isArray(advanced) ? advanced : {}),
       n: String(formData.get("title") || "").trim(),
@@ -146,6 +147,7 @@ export async function createPage(formData: FormData) {
   revalidateTag("all-pages", "max");
   revalidateTag(`page-${data.route_path}`, "max");
   revalidatePath(data.route_path);
+  revalidatePath("/sitemap.xml");
   revalidatePath("/admin/pages");
   redirect(`/admin/pages/${data.id}/edit`);
 }
@@ -154,11 +156,22 @@ export async function updatePage(id: string, formData: FormData) {
   await assertAdmin();
   const supabase = await createClient();
   const next = await payload(formData);
+  const { data: existing } = await supabase
+    .from("pages")
+    .select("route_path")
+    .eq("id", id)
+    .maybeSingle();
   const { error } = await supabase.from("pages").update(next).eq("id", id);
   if (error) throw new Error(error.message);
+  if (existing?.route_path && existing.route_path !== next.route_path) {
+    await recordRedirect(existing.route_path, next.route_path, 301);
+    revalidateTag(`page-${existing.route_path}`, "max");
+    revalidatePath(existing.route_path);
+  }
   revalidateTag("all-pages", "max");
   revalidateTag(`page-${next.route_path}`, "max");
   revalidatePath(next.route_path);
+  revalidatePath("/sitemap.xml");
   revalidatePath("/admin/pages");
   redirect("/admin/pages");
 }
@@ -166,11 +179,54 @@ export async function updatePage(id: string, formData: FormData) {
 export async function deletePage(id: string) {
   await assertAdmin();
   const supabase = await createClient();
+  const { data: existing } = await supabase.from("pages").select("route_path").eq("id", id).maybeSingle();
   const { error } = await supabase.from("pages").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidateTag("all-pages", "max");
+  if (existing?.route_path) {
+    revalidateTag(`page-${existing.route_path}`, "max");
+    revalidatePath(existing.route_path);
+  }
+  revalidatePath("/sitemap.xml");
   revalidatePath("/admin/pages");
   redirect("/admin/pages");
+}
+
+export async function createPageSection(pageId: string, routePath: string, formData: FormData) {
+  await assertAdmin();
+  const supabase = await createClient();
+  const id = crypto.randomUUID();
+  const heading = String(formData.get("heading") || "").trim();
+  const sectionKey = slugify(String(formData.get("section_key") || "section"));
+  const mediaId = await resolvePageMedia({
+    ownerId: `pages/sections/${id}`,
+    title: heading || sectionKey,
+    fileField: "section_media",
+    urlField: "section_media_url",
+    existingField: "existing_section_media_id",
+    formData,
+  });
+
+  const { error } = await supabase.from("page_sections").insert({
+    id,
+    page_id: pageId,
+    section_key: sectionKey,
+    eyebrow: String(formData.get("eyebrow") || "") || null,
+    heading: heading || null,
+    subheading: String(formData.get("subheading") || "") || null,
+    body: String(formData.get("body") || "") || null,
+    sort_order: Number(formData.get("sort_order") || 0),
+    status: String(formData.get("status") || "draft") as ContentStatus,
+    media_id: mediaId,
+  });
+
+  if (error) throw new Error(error.message);
+  revalidateTag("all-pages", "max");
+  revalidateTag(`page-${routePath}`, "max");
+  revalidatePath(routePath);
+  revalidatePath("/sitemap.xml");
+  revalidatePath("/admin/pages");
+  redirect(`/admin/pages/${pageId}/edit`);
 }
 
 export async function updatePageSection(id: string, routePath: string, formData: FormData) {
@@ -203,8 +259,48 @@ export async function updatePageSection(id: string, routePath: string, formData:
   revalidateTag("all-pages", "max");
   revalidateTag(`page-${routePath}`, "max");
   revalidatePath(routePath);
+  revalidatePath("/sitemap.xml");
   revalidatePath("/admin/pages");
   redirect(`/admin/pages/${String(formData.get("page_id"))}/edit`);
+}
+
+export async function createPageBlock(sectionId: string, pageId: string, routePath: string, formData: FormData) {
+  await assertAdmin();
+  const supabase = await createClient();
+  const id = crypto.randomUUID();
+  const title = String(formData.get("title") || "").trim();
+  const mediaId = await resolvePageMedia({
+    ownerId: `pages/blocks/${id}`,
+    title: title || String(formData.get("block_key") || "Page block image"),
+    fileField: "block_media",
+    urlField: "block_media_url",
+    existingField: "existing_block_media_id",
+    formData,
+  });
+
+  const { error } = await supabase.from("page_blocks").insert({
+    id,
+    section_id: sectionId,
+    block_key: slugify(String(formData.get("block_key") || title || "block")),
+    title: title || null,
+    body: String(formData.get("body") || "") || null,
+    link_label: String(formData.get("link_label") || "") || null,
+    link_url: String(formData.get("link_url") || "") || null,
+    link_kind: (String(formData.get("link_kind") || "") || null) as LinkKind | null,
+    icon_name: String(formData.get("icon_name") || "") || null,
+    attributes: blockAttributesFromForm(formData),
+    sort_order: Number(formData.get("sort_order") || 0),
+    status: String(formData.get("status") || "draft") as ContentStatus,
+    media_id: mediaId,
+  });
+
+  if (error) throw new Error(error.message);
+  revalidateTag("all-pages", "max");
+  revalidateTag(`page-${routePath}`, "max");
+  revalidatePath(routePath);
+  revalidatePath("/sitemap.xml");
+  revalidatePath("/admin/pages");
+  redirect(`/admin/pages/${pageId}/edit`);
 }
 
 export async function updatePageBlock(id: string, pageId: string, routePath: string, formData: FormData) {
@@ -240,6 +336,7 @@ export async function updatePageBlock(id: string, pageId: string, routePath: str
   revalidateTag("all-pages", "max");
   revalidateTag(`page-${routePath}`, "max");
   revalidatePath(routePath);
+  revalidatePath("/sitemap.xml");
   revalidatePath("/admin/pages");
   redirect(`/admin/pages/${pageId}/edit`);
 }

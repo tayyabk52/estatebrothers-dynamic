@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PartnersCarousel } from "@/components/ui/PartnersCarousel";
+import { PopularSeoLinks } from "@/components/seo/PopularSeoLinks";
 import { PropertyRow } from "@/components/ui/PropertyRow";
 import { Testimonial } from "@/components/ui/Testimonial";
 import {
@@ -249,6 +250,7 @@ export default async function HomePage() {
         partners={partners}
       />
       <Featured listings={listings} section={featuredSection} />
+      <PopularSeoLinks placement="home" />
       <Narrative page={page} team={team} />
       <Testimonial testimonials={testimonials} stats={testimonialStats} />
     </>

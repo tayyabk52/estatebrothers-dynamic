@@ -15,6 +15,16 @@ const nextConfig: NextConfig = {
         destination: "/admin/:path*",
         permanent: false,
       },
+      {
+        source: "/buy-sell/plots/:slug",
+        destination: "/buy-sell/plot/:slug",
+        permanent: true,
+      },
+      {
+        source: "/buy-sell/houses/:slug",
+        destination: "/buy-sell/house/:slug",
+        permanent: true,
+      },
     ];
   },
   images: {
@@ -27,6 +37,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "zucpsqjiaexxxobzwodd.supabase.co",
         pathname: "/storage/v1/object/public/**",
+      },
+      {
+        protocol: "https",
+        hostname: "estatebrothers.pk",
+        pathname: "/**",
       },
     ],
   },

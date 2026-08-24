@@ -124,6 +124,7 @@ interface ListingForSchema {
   size?: string;
   price: string;
   priceNumeric?: number;
+  availability?: string | null;
   thumbnail?: string;
   image?: string;
   city?: string;
@@ -136,6 +137,12 @@ interface ListingForSchema {
     country?: string | null;
   };
   updatedAt: string;
+}
+
+function offerAvailability(availability?: string | null) {
+  const normalized = availability?.toLowerCase() ?? "";
+  if (normalized.includes("sold")) return "https://schema.org/SoldOut";
+  return "https://schema.org/InStock";
 }
 
 export function buildRealEstateListingSchema(listing: ListingForSchema) {
@@ -172,7 +179,7 @@ export function buildRealEstateListingSchema(listing: ListingForSchema) {
             "@type": "Offer",
             price: listing.priceNumeric,
             priceCurrency: "PKR",
-            availability: "https://schema.org/InStock",
+            availability: offerAvailability(listing.availability),
           },
         }
       : {}),
@@ -225,9 +232,14 @@ interface PersonForSchema {
   phone?: string;
   email?: string;
   image?: string;
+  url?: string;
+  description?: string;
+  sameAs?: string[];
+  keywords?: string[];
 }
 
 export function buildPersonSchema(member: PersonForSchema) {
+  const image = member.image?.startsWith("/") ? `${SITE_URL}${member.image}` : member.image;
   return {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -235,12 +247,30 @@ export function buildPersonSchema(member: PersonForSchema) {
     jobTitle: member.jobTitle ?? member.role,
     telephone: member.phone,
     email: member.email ?? EMAIL,
-    image: member.image?.startsWith("/") ? `${SITE_URL}${member.image}` : member.image,
+    image,
+    url: member.url,
+    description: member.description,
+    sameAs: member.sameAs,
+    knowsAbout: member.keywords,
     worksFor: {
       "@type": "Organization",
       name: SITE_NAME,
       url: SITE_URL,
     },
+  };
+}
+
+export function buildProfilePageSchema(member: PersonForSchema & { canonicalPath: string }) {
+  const url = member.canonicalPath.startsWith("http") ? member.canonicalPath : `${SITE_URL}${member.canonicalPath}`;
+  const { ["@context"]: _context, ...person } = buildPersonSchema({ ...member, url });
+  void _context;
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    url,
+    name: `${member.name} Profile`,
+    description: member.description,
+    mainEntity: person,
   };
 }
 
@@ -307,6 +337,10 @@ export function buildArticleSchema(update: UpdateForSchema & {
       ? `${SITE_URL}${update.media.url}`
       : update.media.url
     : `${SITE_URL}/og-default.jpg`;
+  const authorName = update.author ?? SITE_NAME;
+  const authorType = authorName === SITE_NAME || authorName.toLowerCase().includes("estate brothers")
+    ? "Organization"
+    : "Person";
 
   return {
     "@context": "https://schema.org",
@@ -322,8 +356,8 @@ export function buildArticleSchema(update: UpdateForSchema & {
       "@id": url,
     },
     author: {
-      "@type": "Person",
-      name: update.author ?? SITE_NAME,
+      "@type": authorType,
+      name: authorName,
     },
     publisher: {
       "@type": "Organization",

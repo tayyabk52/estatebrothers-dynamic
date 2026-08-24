@@ -7,11 +7,25 @@ import { createClient } from "@/lib/supabase/server";
 export async function saveSiteSettings(formData: FormData) {
   await assertAdmin();
   const supabase = await createClient();
+  const { data: existing } = await supabase
+    .from("site_settings")
+    .select("social_links, price_range")
+    .eq("singleton_key", true)
+    .maybeSingle();
+  const existingSocials =
+    existing?.social_links && typeof existing.social_links === "object" && !Array.isArray(existing.social_links)
+      ? (existing.social_links as Record<string, string>)
+      : {};
+  const socialValue = (key: string) => {
+    if (!formData.has(key)) return existingSocials[key] ?? "";
+    return String(formData.get(key) || "").trim();
+  };
   const social_links = {
-    facebook: String(formData.get("facebook") || "").trim(),
-    instagram: String(formData.get("instagram") || "").trim(),
-    linkedin: String(formData.get("linkedin") || "").trim(),
-    youtube: String(formData.get("youtube") || "").trim(),
+    ...existingSocials,
+    facebook: socialValue("facebook"),
+    instagram: socialValue("instagram"),
+    linkedin: socialValue("linkedin"),
+    youtube: socialValue("youtube"),
   };
   const payload = {
     singleton_key: true,
@@ -31,7 +45,7 @@ export async function saveSiteSettings(formData: FormData) {
     latitude: formData.get("latitude") ? Number(formData.get("latitude")) : null,
     longitude: formData.get("longitude") ? Number(formData.get("longitude")) : null,
     map_url: String(formData.get("map_url") || "") || null,
-    price_range: String(formData.get("price_range") || "PKR"),
+    price_range: String(formData.get("price_range") || existing?.price_range || "PKR"),
     service_areas: String(formData.get("service_areas") || "").split(",").map((x) => x.trim()).filter(Boolean),
     knows_about: String(formData.get("knows_about") || "").split(",").map((x) => x.trim()).filter(Boolean),
     social_links,
@@ -48,6 +62,7 @@ export async function saveSiteSettings(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/about");
   revalidatePath("/contact");
+  revalidatePath("/sitemap.xml");
   revalidatePath("/admin/site");
 }
 

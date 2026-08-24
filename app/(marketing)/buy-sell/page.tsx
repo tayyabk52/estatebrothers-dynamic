@@ -1,4 +1,5 @@
 import { BuySellClient } from "@/components/pages/BuySellClient";
+import { PopularSeoLinks } from "@/components/seo/PopularSeoLinks";
 import { getAllPublishedListings, getPublishedHouses, getPublishedPlots } from "@/lib/db/listings";
 import { buildAgentMap, getPublishedTeamMembers } from "@/lib/db/team";
 import { buildMetadata } from "@/lib/seo/metadata";
@@ -47,6 +48,7 @@ export default async function BuySellPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
+      <PopularSeoLinks placement="buy-sell" />
       <BuySellClient plots={plots} houses={houses} agentMap={agentMap} />
     </>
   );

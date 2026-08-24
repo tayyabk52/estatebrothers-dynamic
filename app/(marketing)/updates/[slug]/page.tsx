@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { ExternalLink, FileText } from "lucide-react";
@@ -7,6 +6,7 @@ import { getRedirectForPath } from "@/lib/db/redirects";
 import { formatUpdateDate, updateTypeLabels } from "@/lib/db/updates-utils";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { buildArticleSchema, buildBreadcrumbSchema } from "@/lib/seo/structured-data";
+import { SafeMediaImage } from "@/components/ui/SafeMediaImage";
 import "@/styles/updates.css";
 
 interface PageProps {
@@ -15,7 +15,8 @@ interface PageProps {
 
 export async function generateStaticParams() {
   const slugs = await getAllPublishedUpdateSlugs();
-  return slugs.map((slug) => ({ slug }));
+  const params = slugs.map((slug) => ({ slug }));
+  return params.length ? params : [{ slug: "__placeholder" }];
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -115,12 +116,12 @@ export default async function UpdateDetailPage({ params }: PageProps) {
             {update.summary && <p>{update.summary}</p>}
           </div>
           <div className="updates-feature-media reveal">
-            <Image
+            <SafeMediaImage
               src={update.media.url}
               alt={update.media.alt}
               width={900}
               height={560}
-              priority
+              preload
               sizes="(max-width:768px) 100vw, 900px"
             />
           </div>

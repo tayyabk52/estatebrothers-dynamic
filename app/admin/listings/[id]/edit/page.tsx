@@ -3,12 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getListingByIdAdmin } from "@/lib/db/listings";
 import { getAllTeamMembersAdmin } from "@/lib/db/team";
-import { updateListing, deleteListing } from "../../actions";
+import { updateListing, deleteListing, updateListingMediaItem, removeListingMediaItem } from "../../actions";
 import { DeleteButton } from "@/components/ui/DeleteButton";
 import { SeoQualityWidget } from "@/components/admin/SeoQualityWidget";
 import { SlugFieldWithWarning } from "@/components/admin/SlugFieldWithWarning";
 import { MediaAltManager } from "@/components/admin/MediaAltManager";
 import { AIGenerateButton } from "@/components/admin/AIGenerateButton";
+import { ExistingMediaManager } from "@/components/admin/ExistingMediaManager";
 
 export const metadata: Metadata = { title: "Edit Listing" };
 
@@ -23,6 +24,8 @@ export default async function EditListingPage({ params }: Props) {
 
   const updateWithId = updateListing.bind(null, id);
   const deleteWithId = deleteListing.bind(null, id);
+  const existingMedia = listing.listing_media ?? [];
+  const firstMediaAlt = existingMedia.find((item) => item.media_assets?.alt_text)?.media_assets?.alt_text ?? listing.title;
 
   return (
     <div className="admin-page">
@@ -176,8 +179,8 @@ export default async function EditListingPage({ params }: Props) {
             bathrooms: listing.bathrooms,
             listing_type_slug: listing.listing_type_slug,
             slug: listing.slug,
-            has_media: Boolean(listing.thumbnail_url || listing.og_image),
-            media_alt_text: listing.title,
+            has_media: Boolean(listing.thumbnail_url || listing.og_image || existingMedia.length),
+            media_alt_text: firstMediaAlt,
           }}
         />
 
@@ -191,6 +194,15 @@ export default async function EditListingPage({ params }: Props) {
           <button type="submit" className="admin-btn admin-btn-primary">Save changes</button>
         </div>
       </form>
+
+      <ExistingMediaManager
+        title="Existing media"
+        emptyText="No media is currently attached to this listing."
+        items={existingMedia}
+        featuredLabel="Primary listing image"
+        updateActionFor={(item) => updateListingMediaItem.bind(null, id, item.id)}
+        removeActionFor={(item) => removeListingMediaItem.bind(null, id, item.id)}
+      />
     </div>
   );
 }

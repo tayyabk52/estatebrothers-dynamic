@@ -1,17 +1,30 @@
 import Link from "next/link";
 import { mediaUrl, type PageBlockWithMedia, type PageSectionWithBlocks, type PageWithSections } from "@/lib/db/site";
-import { updatePage, updatePageBlock, updatePageSection } from "./actions";
+import { createPageBlock, createPageSection, updatePage, updatePageBlock, updatePageSection } from "./actions";
 
 const SECTION_LABELS: Record<string, string> = {
+  "about-proof": "About proof stats",
+  "awards-recognition": "Awards and recognition",
+  "branches-support": "Branch support panel",
   "hero-stats": "Hero stats",
   "featured-listings": "Featured listings",
   partners: "Partner logos",
   testimonials: "Testimonials",
   "testimonial-stats": "Testimonial stats",
+  "team-stories": "Team stories",
   leadership: "Leadership section",
   services: "Services",
   "operating-model": "Operating model",
 };
+
+const ABOUT_SECTION_OPTIONS = [
+  { value: "about-proof", label: "Proof stats" },
+  { value: "awards-recognition", label: "Awards and recognition" },
+  { value: "services", label: "Service pillars" },
+  { value: "team-stories", label: "Team stories / videos" },
+  { value: "operating-model", label: "Operating model" },
+  { value: "branches-support", label: "Branch support panel" },
+];
 
 function friendlySectionName(key: string) {
   return SECTION_LABELS[key] ?? key.split("-").map((part) => part[0]?.toUpperCase() + part.slice(1)).join(" ");
@@ -22,14 +35,36 @@ function statusBadge(status: string) {
 }
 
 function blockKind(sectionKey: string) {
-  if (sectionKey === "hero-stats" || sectionKey === "testimonial-stats") return "stats";
+  if (sectionKey === "hero-stats" || sectionKey === "testimonial-stats" || sectionKey === "about-proof") return "stats";
+  if (sectionKey === "awards-recognition") return "awards";
   if (sectionKey === "partners") return "partners";
+  if (sectionKey === "team-stories") return "stories";
   if (sectionKey === "testimonials") return "testimonials";
   return "default";
 }
 
 function jsonText(value: unknown) {
   return JSON.stringify(value && typeof value === "object" ? value : {}, null, 2);
+}
+
+function emptyBlock(sectionId: string, sortOrder: number): PageBlockWithMedia {
+  return {
+    id: "",
+    section_id: sectionId,
+    block_key: "",
+    title: null,
+    body: null,
+    media_id: null,
+    icon_name: null,
+    link_label: null,
+    link_url: null,
+    link_kind: null,
+    attributes: {},
+    sort_order: sortOrder,
+    status: "draft",
+    created_at: "",
+    updated_at: "",
+  };
 }
 
 function pageLiveHref(routePath: string) {
@@ -115,6 +150,8 @@ export function PageEditorWorkspace({ page }: { page: PageWithSections }) {
           <span>{sections.length} sections</span>
         </div>
 
+        <AddSectionForm page={page} />
+
         {sections.map((section, index) => (
           <PageSectionEditor
             key={section.id}
@@ -173,6 +210,62 @@ function AdminAccordion({
   );
 }
 
+function AddSectionForm({ page }: { page: PageWithSections }) {
+  const action = createPageSection.bind(null, page.id, page.route_path);
+  const nextSort = ((page.page_sections ?? []).at(-1)?.sort_order ?? 0) + 10;
+  const isAbout = page.route_path === "/about";
+
+  return (
+    <details className="admin-accordion">
+      <summary>
+        <span>
+          <strong>Add content section</strong>
+          <small>Create a CMS-backed section for this page.</small>
+        </span>
+        <span className="admin-accordion-meta"><span className="admin-pill">New section</span></span>
+      </summary>
+      <form action={action} className="admin-section-form">
+        <input type="hidden" name="existing_section_media_id" value="" />
+        <div className="admin-field-row">
+          <label className="admin-field">
+            Section type
+            {isAbout ? (
+              <select name="section_key" defaultValue="awards-recognition">
+                {ABOUT_SECTION_OPTIONS.map((option) => (
+                  <option value={option.value} key={option.value}>{option.label}</option>
+                ))}
+              </select>
+            ) : (
+              <input name="section_key" required placeholder="section-key" />
+            )}
+          </label>
+          <label className="admin-field">Sort order<input type="number" name="sort_order" defaultValue={nextSort} /></label>
+          <label className="admin-field">
+            Status
+            <select name="status" defaultValue="draft">
+              <option value="draft">Draft</option>
+              <option value="review">Review</option>
+              <option value="published">Published</option>
+              <option value="archived">Archived</option>
+            </select>
+          </label>
+        </div>
+        <label className="admin-field">Eyebrow<input name="eyebrow" /></label>
+        <label className="admin-field">Heading<input name="heading" /></label>
+        <label className="admin-field">Intro / subheading<textarea name="subheading" rows={2} /></label>
+        <label className="admin-field">Body<textarea name="body" rows={3} /></label>
+        <div className="admin-field-row">
+          <label className="admin-field">Upload image<input type="file" name="section_media" accept="image/*" /></label>
+          <label className="admin-field">Image URL<input name="section_media_url" placeholder="/images/... or https://..." /></label>
+        </div>
+        <div className="admin-form-actions">
+          <button type="submit" className="admin-btn admin-btn-primary">Add section</button>
+        </div>
+      </form>
+    </details>
+  );
+}
+
 function PageSectionEditor({
   page,
   section,
@@ -185,11 +278,12 @@ function PageSectionEditor({
   const sectionMediaUrl = mediaUrl(section.media_assets);
   const sectionAction = updatePageSection.bind(null, section.id, page.route_path);
   const blocks = section.page_blocks ?? [];
+  const publishedBlockCount = blocks.filter((block) => block.status === "published").length;
 
   return (
     <AdminAccordion
       title={friendlySectionName(section.section_key)}
-      subtitle={`${blocks.length} block${blocks.length === 1 ? "" : "s"} · sort ${section.sort_order}`}
+      subtitle={`${publishedBlockCount}/${blocks.length} published blocks - sort ${section.sort_order}`}
       defaultOpen={defaultOpen}
       meta={
         <>
@@ -231,7 +325,65 @@ function PageSectionEditor({
       {blocks.length > 0 && (
         <PageBlockTable page={page} section={section} blocks={blocks} />
       )}
+
+      <AddBlockForm page={page} section={section} nextSort={(blocks.at(-1)?.sort_order ?? 0) + 10} />
     </AdminAccordion>
+  );
+}
+
+function AddBlockForm({
+  page,
+  section,
+  nextSort,
+}: {
+  page: PageWithSections;
+  section: PageSectionWithBlocks;
+  nextSort: number;
+}) {
+  const action = createPageBlock.bind(null, section.id, page.id, page.route_path);
+  const kind = blockKind(section.section_key);
+
+  return (
+    <details className="admin-block-row admin-block-row-default">
+      <summary>
+        <strong>Add block</strong><span>{friendlySectionName(section.section_key)}</span><span>New CMS item</span>
+        <span><span className="admin-badge admin-badge-draft">draft</span></span>
+        <span>{nextSort}</span>
+        <span className="admin-btn admin-btn-sm">Add</span>
+      </summary>
+      <form action={action} className="admin-block-edit-form">
+        <input type="hidden" name="section_key" value={section.section_key} />
+        <input type="hidden" name="existing_block_media_id" value="" />
+        <label className="admin-field">Block key<input name="block_key" placeholder="new-block-key" /></label>
+        <BlockFields block={emptyBlock(section.id, nextSort)} kind={kind} />
+        <div className="admin-field-row">
+          <label className="admin-field">
+            Status
+            <select name="status" defaultValue="draft">
+              <option value="draft">Draft</option>
+              <option value="review">Review</option>
+              <option value="published">Published</option>
+              <option value="archived">Archived</option>
+            </select>
+          </label>
+          <label className="admin-field">Sort order<input type="number" name="sort_order" defaultValue={nextSort} /></label>
+        </div>
+        <div className="admin-field-row">
+          <label className="admin-field">Upload media<input type="file" name="block_media" accept="image/*,video/*" /></label>
+          <label className="admin-field">Media URL<input name="block_media_url" placeholder="/images/... or https://..." /></label>
+        </div>
+        <details className="admin-advanced-json">
+          <summary>Advanced JSON</summary>
+          <label className="admin-field">
+            Attributes JSON
+            <textarea name="attributes" rows={4} defaultValue="{}" />
+          </label>
+        </details>
+        <div className="admin-form-actions">
+          <button type="submit" className="admin-btn admin-btn-primary">Add block</button>
+        </div>
+      </form>
+    </details>
   );
 }
 
@@ -256,6 +408,14 @@ function PageBlockTable({
         ) : kind === "partners" ? (
           <>
             <span>Logo</span><span>Partner</span><span>Alt text</span><span>Status</span><span>Sort</span><span>Actions</span>
+          </>
+        ) : kind === "awards" ? (
+          <>
+            <span>Media</span><span>Award / certificate</span><span>Category</span><span>Status</span><span>Sort</span><span>Actions</span>
+          </>
+        ) : kind === "stories" ? (
+          <>
+            <span>Story</span><span>Person / team</span><span>Summary</span><span>Status</span><span>Sort</span><span>Actions</span>
           </>
         ) : kind === "testimonials" ? (
           <>
@@ -300,6 +460,15 @@ function PageBlockEditor({
           <>
             <span className="admin-media-thumb">{blockMediaUrl ? <img src={blockMediaUrl} alt="" /> : "No logo"}</span>
             <strong>{block.title ?? "Partner"}</strong><span>{block.body}</span>
+          </>
+        ) : kind === "awards" ? (
+          <>
+            <span className="admin-media-thumb">{blockMediaUrl ? <img src={blockMediaUrl} alt="" /> : "No media"}</span>
+            <strong>{block.title ?? "Award"}</strong><span>{block.icon_name}</span>
+          </>
+        ) : kind === "stories" ? (
+          <>
+            <strong>{block.title ?? "Story"}</strong><span>{block.link_label}</span><span>{block.body}</span>
           </>
         ) : kind === "testimonials" ? (
           <>
@@ -375,6 +544,36 @@ function BlockFields({ block, kind }: { block: PageBlockWithMedia; kind: string 
         <input type="hidden" name="link_url" value={block.link_url ?? ""} />
         <input type="hidden" name="link_kind" value={block.link_kind ?? ""} />
         <input type="hidden" name="icon_name" value={block.icon_name ?? ""} />
+      </>
+    );
+  }
+
+  if (kind === "awards") {
+    return (
+      <>
+        <label className="admin-field">Award / certificate title<input name="title" defaultValue={block.title ?? ""} /></label>
+        <label className="admin-field">Visible description<textarea name="body" rows={3} defaultValue={block.body ?? ""} /></label>
+        <div className="admin-field-row">
+          <label className="admin-field">Category label<input name="icon_name" placeholder="MEMBERSHIP / AWARD / REGISTRATION" defaultValue={block.icon_name ?? ""} /></label>
+          <label className="admin-field">Issuer / source<input name="link_label" defaultValue={block.link_label ?? ""} /></label>
+        </div>
+        <label className="admin-field">Reference URL<input name="link_url" defaultValue={block.link_url ?? ""} /></label>
+        <input type="hidden" name="link_kind" value={block.link_kind ?? ""} />
+      </>
+    );
+  }
+
+  if (kind === "stories") {
+    return (
+      <>
+        <label className="admin-field">Story title<input name="title" defaultValue={block.title ?? ""} /></label>
+        <label className="admin-field">Visible summary<textarea name="body" rows={3} defaultValue={block.body ?? ""} /></label>
+        <div className="admin-field-row">
+          <label className="admin-field">Story code / duration<input name="icon_name" placeholder="TH / 02:40" defaultValue={block.icon_name ?? ""} /></label>
+          <label className="admin-field">Person or team<input name="link_label" defaultValue={block.link_label ?? ""} /></label>
+        </div>
+        <label className="admin-field">Video URL / embed URL<input name="link_url" defaultValue={block.link_url ?? ""} /></label>
+        <input type="hidden" name="link_kind" value={block.link_kind ?? ""} />
       </>
     );
   }

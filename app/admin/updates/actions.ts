@@ -14,6 +14,19 @@ function slugify(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").replace(/-+/g, "-");
 }
 
+function nullableString(value: FormDataEntryValue | null) {
+  const text = String(value || "").trim();
+  return text || null;
+}
+
+function revalidateUpdateSurfaces(path?: string | null) {
+  revalidateTag("updates", "max");
+  revalidatePath("/admin/updates");
+  revalidatePath("/updates");
+  revalidatePath("/sitemap.xml");
+  if (path) revalidatePath(path);
+}
+
 export async function createUpdate(formData: FormData) {
   await assertAdmin();
   const supabase = await createClient();
@@ -58,11 +71,8 @@ export async function createUpdate(formData: FormData) {
 
   if (error) throw new Error(error.message);
   await syncUpdateExtras(data.id, formData);
-  revalidateTag("updates", "max");
   revalidateTag(`update-${slug}`, "max");
-  revalidatePath("/admin/updates");
-  revalidatePath("/updates");
-  revalidatePath(`/updates/${slug}`);
+  revalidateUpdateSurfaces(`/updates/${slug}`);
   redirect(`/admin/updates/${data.id}/edit`);
 }
 
@@ -123,13 +133,12 @@ export async function updateUpdate(id: string, formData: FormData) {
   if (existing?.canonical_path && existing.canonical_path !== newCanonicalPath) {
     await recordRedirect(existing.canonical_path, newCanonicalPath, 301);
     revalidateTag(`update-${existing.slug}`, "max");
+    revalidatePath(existing.canonical_path);
   }
 
   await syncUpdateExtras(id, formData);
-  revalidateTag("updates", "max");
   revalidateTag(`update-${newSlug}`, "max");
-  revalidatePath("/admin/updates");
-  revalidatePath("/updates");
+  revalidateUpdateSurfaces(newCanonicalPath);
   redirect("/admin/updates");
 }
 
@@ -213,13 +222,81 @@ async function syncUpdateExtras(updateId: string, formData: FormData) {
   }
 }
 
+export async function updateUpdateMediaItem(updateId: string, relationId: string, formData: FormData) {
+  await assertAdmin();
+  const supabase = await createClient();
+  const { data: relation, error: relationError } = await supabase
+    .from("update_media")
+    .select("media_id, updates(slug, canonical_path)")
+    .eq("id", relationId)
+    .eq("update_id", updateId)
+    .single();
+  if (relationError) throw new Error(relationError.message);
+
+  const isFeatured = formData.get("is_primary") === "true";
+  const isOgCandidate = formData.get("is_og_candidate") === "true";
+
+  if (isFeatured) {
+    const { error } = await supabase.from("update_media").update({ is_featured: false }).eq("update_id", updateId);
+    if (error) throw new Error(error.message);
+  }
+  if (isOgCandidate) {
+    const { error } = await supabase.from("update_media").update({ is_og_candidate: false }).eq("update_id", updateId);
+    if (error) throw new Error(error.message);
+  }
+
+  const { error: updateError } = await supabase
+    .from("update_media")
+    .update({
+      sort_order: Number(formData.get("sort_order") || 0),
+      is_featured: isFeatured,
+      is_og_candidate: isOgCandidate,
+    })
+    .eq("id", relationId)
+    .eq("update_id", updateId);
+  if (updateError) throw new Error(updateError.message);
+
+  const { error: assetError } = await supabase
+    .from("media_assets")
+    .update({
+      title: nullableString(formData.get("media_title")),
+      alt_text: nullableString(formData.get("media_alt_text")),
+    })
+    .eq("id", relation.media_id);
+  if (assetError) throw new Error(assetError.message);
+
+  const update = Array.isArray(relation.updates) ? relation.updates[0] : relation.updates;
+  if (update?.slug) revalidateTag(`update-${update.slug}`, "max");
+  revalidatePath(`/admin/updates/${updateId}/edit`);
+  revalidateUpdateSurfaces(update?.canonical_path);
+}
+
+export async function removeUpdateMediaItem(updateId: string, relationId: string) {
+  await assertAdmin();
+  const supabase = await createClient();
+  const { data: relation, error: relationError } = await supabase
+    .from("update_media")
+    .select("updates(slug, canonical_path)")
+    .eq("id", relationId)
+    .eq("update_id", updateId)
+    .single();
+  if (relationError) throw new Error(relationError.message);
+  const { error } = await supabase.from("update_media").delete().eq("id", relationId).eq("update_id", updateId);
+  if (error) throw new Error(error.message);
+
+  const update = Array.isArray(relation.updates) ? relation.updates[0] : relation.updates;
+  if (update?.slug) revalidateTag(`update-${update.slug}`, "max");
+  revalidatePath(`/admin/updates/${updateId}/edit`);
+  revalidateUpdateSurfaces(update?.canonical_path);
+}
+
 export async function deleteUpdate(id: string) {
   await assertAdmin();
   const supabase = await createClient();
+  const { data: existing } = await supabase.from("updates").select("canonical_path, slug").eq("id", id).maybeSingle();
   const { error } = await supabase.from("updates").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  revalidateTag("updates", "max");
-  revalidatePath("/admin/updates");
-  revalidatePath("/updates");
+  if (existing?.slug) revalidateTag(`update-${existing.slug}`, "max");
+  revalidateUpdateSurfaces(existing?.canonical_path);
   redirect("/admin/updates");
 }

@@ -12,6 +12,23 @@ function slugify(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").replace(/-+/g, "-");
 }
 
+function nullableString(value: FormDataEntryValue | null) {
+  const text = String(value || "").trim();
+  return text || null;
+}
+
+function listingAvailability(formData: FormData, fallback = "available") {
+  return String(formData.get("availability") || fallback).trim() || fallback;
+}
+
+function revalidateListingSurfaces(path?: string | null) {
+  revalidateTag("all-listings", "max");
+  revalidatePath("/admin/listings");
+  revalidatePath("/buy-sell");
+  revalidatePath("/sitemap.xml");
+  if (path) revalidatePath(path);
+}
+
 export async function createListing(formData: FormData) {
   await assertAdmin();
   const supabase = await createClient();
@@ -33,6 +50,8 @@ export async function createListing(formData: FormData) {
       title,
       slug,
       canonical_path: canonicalPath,
+      availability: listingAvailability(formData),
+      contact_person_id: nullableString(formData.get("contact_person_id")),
       phase: (formData.get("phase") as string) || null,
       city: (formData.get("city") as string) || null,
       block: (formData.get("block") as string) || null,
@@ -57,9 +76,7 @@ export async function createListing(formData: FormData) {
 
   if (error) throw new Error(error.message);
   await attachListingMedia(data.id, formData);
-  revalidateTag("all-listings", "max");
-  revalidatePath("/admin/listings");
-  revalidatePath("/buy-sell");
+  revalidateListingSurfaces(canonicalPath);
   redirect(`/admin/listings/${data.id}/edit`);
 }
 
@@ -77,7 +94,7 @@ export async function updateListing(id: string, formData: FormData) {
 
   const { data: existing } = await supabase
     .from("real_estate_listings")
-    .select("slug, listing_type_slug, canonical_path")
+    .select("slug, listing_type_slug, canonical_path, availability")
     .eq("id", id)
     .single();
 
@@ -94,6 +111,8 @@ export async function updateListing(id: string, formData: FormData) {
       slug: newSlug,
       canonical_path: newCanonicalPath,
       listing_type_slug: listingTypeSlug,
+      availability: listingAvailability(formData, existing?.availability ?? "available"),
+      contact_person_id: nullableString(formData.get("contact_person_id")),
       phase: (formData.get("phase") as string) || null,
       city: (formData.get("city") as string) || null,
       block: (formData.get("block") as string) || null,
@@ -121,13 +140,12 @@ export async function updateListing(id: string, formData: FormData) {
   if (existing?.canonical_path && existing.canonical_path !== newCanonicalPath) {
     await recordRedirect(existing.canonical_path, newCanonicalPath, 301);
     revalidateTag(`listing-${existing.slug}`, "max");
+    revalidatePath(existing.canonical_path);
   }
 
   await attachListingMedia(id, formData);
-  revalidateTag("all-listings", "max");
   revalidateTag(`listing-${newSlug}`, "max");
-  revalidatePath("/admin/listings");
-  revalidatePath("/buy-sell");
+  revalidateListingSurfaces(newCanonicalPath);
   redirect("/admin/listings");
 }
 
@@ -184,13 +202,90 @@ async function attachListingMedia(listingId: string, formData: FormData) {
   }
 }
 
+export async function updateListingMediaItem(listingId: string, relationId: string, formData: FormData) {
+  await assertAdmin();
+  const supabase = await createClient();
+  const { data: relation, error: relationError } = await supabase
+    .from("listing_media")
+    .select("media_id, real_estate_listings(slug, canonical_path)")
+    .eq("id", relationId)
+    .eq("listing_id", listingId)
+    .single();
+  if (relationError) throw new Error(relationError.message);
+
+  const isPrimary = formData.get("is_primary") === "true";
+  const isOgCandidate = formData.get("is_og_candidate") === "true";
+
+  if (isPrimary) {
+    const { error } = await supabase.from("listing_media").update({ is_primary: false }).eq("listing_id", listingId);
+    if (error) throw new Error(error.message);
+  }
+  if (isOgCandidate) {
+    const { error } = await supabase.from("listing_media").update({ is_og_candidate: false }).eq("listing_id", listingId);
+    if (error) throw new Error(error.message);
+  }
+
+  const { error: updateError } = await supabase
+    .from("listing_media")
+    .update({
+      sort_order: Number(formData.get("sort_order") || 0),
+      is_primary: isPrimary,
+      is_gallery_item: formData.get("is_gallery_item") === "true",
+      is_og_candidate: isOgCandidate,
+    })
+    .eq("id", relationId)
+    .eq("listing_id", listingId);
+  if (updateError) throw new Error(updateError.message);
+
+  const { error: assetError } = await supabase
+    .from("media_assets")
+    .update({
+      title: nullableString(formData.get("media_title")),
+      alt_text: nullableString(formData.get("media_alt_text")),
+    })
+    .eq("id", relation.media_id);
+  if (assetError) throw new Error(assetError.message);
+
+  const listing = Array.isArray(relation.real_estate_listings)
+    ? relation.real_estate_listings[0]
+    : relation.real_estate_listings;
+  if (listing?.slug) revalidateTag(`listing-${listing.slug}`, "max");
+  revalidatePath(`/admin/listings/${listingId}/edit`);
+  revalidateListingSurfaces(listing?.canonical_path);
+}
+
+export async function removeListingMediaItem(listingId: string, relationId: string) {
+  await assertAdmin();
+  const supabase = await createClient();
+  const { data: relation, error: relationError } = await supabase
+    .from("listing_media")
+    .select("real_estate_listings(slug, canonical_path)")
+    .eq("id", relationId)
+    .eq("listing_id", listingId)
+    .single();
+  if (relationError) throw new Error(relationError.message);
+  const { error } = await supabase.from("listing_media").delete().eq("id", relationId).eq("listing_id", listingId);
+  if (error) throw new Error(error.message);
+
+  const listing = Array.isArray(relation.real_estate_listings)
+    ? relation.real_estate_listings[0]
+    : relation.real_estate_listings;
+  if (listing?.slug) revalidateTag(`listing-${listing.slug}`, "max");
+  revalidatePath(`/admin/listings/${listingId}/edit`);
+  revalidateListingSurfaces(listing?.canonical_path);
+}
+
 export async function deleteListing(id: string) {
   await assertAdmin();
   const supabase = await createClient();
+  const { data: existing } = await supabase
+    .from("real_estate_listings")
+    .select("canonical_path, slug")
+    .eq("id", id)
+    .maybeSingle();
   const { error } = await supabase.from("real_estate_listings").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  revalidateTag("all-listings", "max");
-  revalidatePath("/admin/listings");
-  revalidatePath("/buy-sell");
+  if (existing?.slug) revalidateTag(`listing-${existing.slug}`, "max");
+  revalidateListingSurfaces(existing?.canonical_path);
   redirect("/admin/listings");
 }

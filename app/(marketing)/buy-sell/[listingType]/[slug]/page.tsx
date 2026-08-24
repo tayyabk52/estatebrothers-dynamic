@@ -15,10 +15,11 @@ interface PageProps {
 
 export async function generateStaticParams() {
   const listings = await getAllPublishedListings();
-  return listings.map((listing) => ({
+  const params = listings.map((listing) => ({
     listingType: listing.type,
     slug: listing.slug,
   }));
+  return params.length ? params : [{ listingType: "plot", slug: "__placeholder" }];
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: PageProps) {
     title,
     description,
     canonicalPath: `/buy-sell/${listingType}/${slug}`,
-    image: (isHouse ? house!.ogImage ?? house!.thumbnail : null) ?? "/og-default.jpg",
+    image: (isHouse ? house!.ogImage ?? house!.thumbnail : plot!.ogImage ?? plot!.thumbnail) ?? "/og-default.jpg",
     noIndex: listing.noindex,
     keywords: [
       `${listing.phase ?? ""} ${listing.size ?? ""}`.trim(),
@@ -69,6 +70,7 @@ function ContactPanel({
         <p>{agent.role}</p>
       </div>
       <div className="detail-contact-actions">
+        {agent.profilePath && <Link href={agent.profilePath}>View profile</Link>}
         {agent.phone && <a href={`tel:${agent.phone.replace(/\s/g, "")}`}>{agent.phone}</a>}
         {agent.whatsapp && (
           <a href={`https://wa.me/${agent.whatsapp.replace(/\D/g, "")}`}>WhatsApp</a>
@@ -125,7 +127,8 @@ export default async function ListingDetailPage({ params }: PageProps) {
     size: listing.size ?? undefined,
     price: listing.price,
     priceNumeric: listing.priceNumeric ?? undefined,
-    thumbnail: isHouse ? house!.ogImage ?? house!.thumbnail ?? undefined : undefined,
+    availability: listing.availability,
+    thumbnail: (isHouse ? house!.ogImage ?? house!.thumbnail : plot!.ogImage ?? plot!.thumbnail) ?? undefined,
     city: listing.city ?? undefined,
     location: isHouse ? {
       address: house!.location.address ?? "",
@@ -258,61 +261,70 @@ export default async function ListingDetailPage({ params }: PageProps) {
             </section>
           </>
         ) : plot ? (
-          <section className="detail-body">
-            <div className="wrap">
-              <div className="detail-main">
-                <ContactPanel agent={agent} listingId={plot.id} compact />
-                <div className="detail-summary-table">
-                  <table>
-                    <tbody>
-                      <tr>
-                        <th>Phase</th>
-                        <td>{plot.phase}</td>
-                        <th>Size</th>
-                        <td>{plot.size}</td>
-                      </tr>
-                      <tr>
-                        <th>Project</th>
-                        <td>{plot.project}</td>
-                        <th>Status</th>
-                        <td>{plot.status}</td>
-                      </tr>
-                      <tr>
-                        <th>Block</th>
-                        <td>{plot.block}</td>
-                        <th>Updated</th>
-                        <td>{plot.updatedAt}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div className="detail-block">
-                  <h2>Plot details</h2>
-                  <dl className="detail-specs compact">
-                    {[
-                      ["Phase", plot.phase],
-                      ["Project", plot.project],
-                      ["Block", plot.block],
-                      ["Size", plot.size],
-                      ["Status", plot.status],
-                      ["Updated", plot.updatedAt],
-                    ].filter(([, v]) => v).map(([label, value]) => (
-                      <div key={label as string}>
-                        <dt>{label}</dt>
-                        <dd>{value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-                {plot.notes && (
-                  <div className="detail-block">
-                    <h2>Notes</h2>
-                    <p>{plot.notes}</p>
+          <>
+            {plot.gallery.length > 0 && (
+              <GalleryCarousel
+                gallery={plot.gallery}
+                title={itemTitle}
+                listingId={plot.id}
+              />
+            )}
+            <section className="detail-body">
+              <div className="wrap">
+                <div className="detail-main">
+                  <ContactPanel agent={agent} listingId={plot.id} compact />
+                  <div className="detail-summary-table">
+                    <table>
+                      <tbody>
+                        <tr>
+                          <th>Phase</th>
+                          <td>{plot.phase}</td>
+                          <th>Size</th>
+                          <td>{plot.size}</td>
+                        </tr>
+                        <tr>
+                          <th>Project</th>
+                          <td>{plot.project}</td>
+                          <th>Status</th>
+                          <td>{plot.status}</td>
+                        </tr>
+                        <tr>
+                          <th>Block</th>
+                          <td>{plot.block}</td>
+                          <th>Updated</th>
+                          <td>{plot.updatedAt}</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-                )}
+                  <div className="detail-block">
+                    <h2>Plot details</h2>
+                    <dl className="detail-specs compact">
+                      {[
+                        ["Phase", plot.phase],
+                        ["Project", plot.project],
+                        ["Block", plot.block],
+                        ["Size", plot.size],
+                        ["Status", plot.status],
+                        ["Updated", plot.updatedAt],
+                      ].filter(([, v]) => v).map(([label, value]) => (
+                        <div key={label as string}>
+                          <dt>{label}</dt>
+                          <dd>{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                  {plot.notes && (
+                    <div className="detail-block">
+                      <h2>Notes</h2>
+                      <p>{plot.notes}</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          </>
         ) : null}
       </main>
     </>

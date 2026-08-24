@@ -780,7 +780,12 @@ export type Database = {
           page_type: Database["public"]["Enums"]["seo_landing_page_type"]
           phase: string | null
           published_at: string | null
+          public_link_description: string | null
+          public_link_label: string | null
           search_document: unknown
+          show_in_footer: boolean
+          show_on_buy_sell: boolean
+          show_on_home: boolean
           slug: string
           sort_order: number
           status: Database["public"]["Enums"]["content_status"]
@@ -809,7 +814,12 @@ export type Database = {
           page_type: Database["public"]["Enums"]["seo_landing_page_type"]
           phase?: string | null
           published_at?: string | null
+          public_link_description?: string | null
+          public_link_label?: string | null
           search_document?: unknown
+          show_in_footer?: boolean
+          show_on_buy_sell?: boolean
+          show_on_home?: boolean
           slug: string
           sort_order?: number
           status?: Database["public"]["Enums"]["content_status"]
@@ -838,7 +848,12 @@ export type Database = {
           page_type?: Database["public"]["Enums"]["seo_landing_page_type"]
           phase?: string | null
           published_at?: string | null
+          public_link_description?: string | null
+          public_link_label?: string | null
           search_document?: unknown
+          show_in_footer?: boolean
+          show_on_buy_sell?: boolean
+          show_on_home?: boolean
           slug?: string
           sort_order?: number
           status?: Database["public"]["Enums"]["content_status"]

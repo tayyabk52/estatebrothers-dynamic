@@ -4,7 +4,8 @@ export function AdminLogoutButton() {
   return (
     <form action={logoutAdmin}>
       <button type="submit" className="admin-nav-link admin-nav-link-muted admin-logout">
-        Sign out
+        <span className="admin-nav-initial">×</span>
+        <span className="admin-nav-label">Sign out</span>
       </button>
     </form>
   );

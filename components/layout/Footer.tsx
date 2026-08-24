@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PopularSeoLinks } from "@/components/seo/PopularSeoLinks";
 import { getSiteSettings } from "@/lib/db/site";
 import { CurrentYear } from "@/components/ui/CurrentYear";
 
@@ -30,6 +31,8 @@ export async function Footer() {
           {settings?.phone && phoneHref && <a href={phoneHref}>{settings.phone}</a>}
           {settings?.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}
         </div>
+
+        <PopularSeoLinks placement="footer" />
 
         <div className="footer-bot">
           <span>© <CurrentYear /> {settings?.business_name ?? "Estate Brothers"}</span>

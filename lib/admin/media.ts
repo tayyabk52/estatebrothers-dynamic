@@ -56,7 +56,10 @@ export async function createUploadedMediaAsset({
     })
     .select("id, public_url")
     .single();
-  if (error) throw new Error(error.message);
+  if (error) {
+    await supabase.storage.from(bucket).remove([path]).catch(() => undefined);
+    throw new Error(error.message);
+  }
   return data;
 }
 

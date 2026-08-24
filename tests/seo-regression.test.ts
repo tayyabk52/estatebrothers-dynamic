@@ -8,6 +8,7 @@ import {
   buildArticleSchema,
   buildRealEstateListingSchema,
   buildItemListSchema,
+  buildProfilePageSchema,
 } from "../lib/seo/structured-data";
 import {
   calculateListingSeoQuality,
@@ -15,6 +16,7 @@ import {
   detectBoilerplate,
 } from "../lib/seo/validator";
 import robots from "../app/robots";
+import { canUseNextImage } from "../lib/media/images";
 
 describe("SEO Metadata Builder", () => {
   it("formats title and creates absolute canonical URL", () => {
@@ -24,7 +26,7 @@ describe("SEO Metadata Builder", () => {
       canonicalPath: "/buy-sell/house/5-marla-dha-phase-6",
     });
 
-    expect(meta.title).toBe("5 Marla House in DHA Phase 6 | Estate Brothers");
+    expect(meta.title).toEqual({ absolute: "5 Marla House in DHA Phase 6 | Estate Brothers" });
     expect(meta.description).toBe("Luxury 5 marla designer house for sale in DHA Lahore.");
     expect(meta.alternates?.canonical).toBe("https://estatebrothers.pk/buy-sell/house/5-marla-dha-phase-6");
   });
@@ -35,7 +37,7 @@ describe("SEO Metadata Builder", () => {
       canonicalPath: "/",
     });
 
-    expect(meta.title).toBe("Estate Brothers");
+    expect(meta.title).toEqual({ absolute: "Estate Brothers" });
     expect(meta.alternates?.canonical).toBe("https://estatebrothers.pk/");
   });
 
@@ -249,6 +251,44 @@ describe("Robots Configuration", () => {
     const aiRule = rules.find((r) => Array.isArray(r.userAgent) && r.userAgent.includes("GPTBot"));
     expect(aiRule).toBeDefined();
     expect(aiRule?.disallow).toBe("/");
+  });
+});
+
+describe("Admin-managed media rendering safety", () => {
+  it("allows Next image optimization for local, Supabase, and production-domain media", () => {
+    expect(canUseNextImage("/images/example.jpg")).toBe(true);
+    expect(canUseNextImage("https://zucpsqjiaexxxobzwodd.supabase.co/storage/v1/object/public/site-assets/example.jpg")).toBe(true);
+    expect(canUseNextImage("https://estatebrothers.pk/og-default.jpg")).toBe(true);
+  });
+
+  it("generates valid ProfilePage schema with Person mainEntity", () => {
+    const schema = buildProfilePageSchema({
+      name: "Abdul Rehman",
+      jobTitle: "Property Consultant",
+      phone: "+92 300 0000000",
+      email: "abdul@example.com",
+      image: "/images/team/abdul.jpg",
+      description: "Abdul Rehman advises clients on DHA Lahore residential plots and investment opportunities.",
+      keywords: ["DHA Lahore", "Residential plots", "Investment advisory"],
+      canonicalPath: "/team/abdul-rehman",
+    });
+
+    expect(schema["@type"]).toBe("ProfilePage");
+    expect(schema.url).toBe("https://estatebrothers.pk/team/abdul-rehman");
+    expect(schema.mainEntity["@type"]).toBe("Person");
+    expect(schema.mainEntity.name).toBe("Abdul Rehman");
+    expect(schema.mainEntity.jobTitle).toBe("Property Consultant");
+    expect(schema.mainEntity.image).toBe("https://estatebrothers.pk/images/team/abdul.jpg");
+    expect(schema.mainEntity.worksFor).toEqual({
+      "@type": "Organization",
+      name: "Estate Brothers",
+      url: "https://estatebrothers.pk",
+    });
+  });
+
+  it("falls back away from Next image optimization for unallowlisted external media", () => {
+    expect(canUseNextImage("https://cdn.example.com/property.jpg")).toBe(false);
+    expect(canUseNextImage("http://estatebrothers.pk/insecure.jpg")).toBe(false);
   });
 });
 

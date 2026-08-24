@@ -6,6 +6,8 @@ import type { NormalizedPlot, NormalizedHouse } from "@/lib/types";
 import type { ListingRow } from "@/lib/supabase/types";
 
 type ListingMediaJoin = {
+  id: string;
+  media_id: string;
   sort_order: number;
   is_primary: boolean;
   is_gallery_item: boolean;
@@ -14,12 +16,14 @@ type ListingMediaJoin = {
     public_url: string | null;
     external_url: string | null;
     thumbnail_url: string | null;
+    title: string | null;
+    alt_text: string | null;
     media_type: string;
     status: string;
   } | null;
 };
 
-type ListingWithMedia = ListingRow & { listing_media?: ListingMediaJoin[] | null };
+export type ListingWithMedia = ListingRow & { listing_media?: ListingMediaJoin[] | null };
 
 function assetImageUrl(asset?: ListingMediaJoin["media_assets"]) {
   if (!asset || asset.status !== "published") return null;
@@ -42,6 +46,8 @@ function listingImages(row: ListingWithMedia) {
 const LISTING_SELECT = "*, listing_media(*, media_assets(*))";
 
 function rowToPlot(row: ListingWithMedia): NormalizedPlot {
+  const images = listingImages(row);
+
   return {
     id: row.id,
     slug: row.slug,
@@ -57,6 +63,9 @@ function rowToPlot(row: ListingWithMedia): NormalizedPlot {
     availability: row.availability ?? row.listing_status,
     noindex: row.noindex ?? false,
     contactPersonId: row.contact_person_id,
+    thumbnail: images.primary,
+    gallery: images.gallery,
+    ogImage: images.og,
     notes: row.summary,
     updatedAt: row.updated_at.slice(0, 10),
   };
@@ -188,13 +197,13 @@ export async function getAllListingsAdmin() {
   return data ?? [];
 }
 
-export async function getListingByIdAdmin(id: string): Promise<ListingRow | null> {
+export async function getListingByIdAdmin(id: string): Promise<ListingWithMedia | null> {
   await assertAdmin();
   const supabase = await createClient();
   const { data } = await supabase
     .from("real_estate_listings")
-    .select("*")
+    .select(LISTING_SELECT)
     .eq("id", id)
     .maybeSingle();
-  return data as ListingRow | null;
+  return data as ListingWithMedia | null;
 }

@@ -74,7 +74,6 @@ export async function getPublishedPage(routePath: string): Promise<PageWithSecti
     )
     .eq("route_path", routePath)
     .eq("status", "published")
-    .eq("noindex", false)
     .maybeSingle();
 
   if (!data) return null;
