@@ -20,6 +20,11 @@ export function SeoLandingPageForm({ page, action, matchingCount }: Props) {
   const heroExternalUrl = page?.hero_media?.source_type === "external" ? page.hero_media.external_url ?? "" : "";
   const ogExternalUrl = page?.og_media?.source_type === "external" ? page.og_media.external_url ?? "" : "";
   const isIndexable = page?.status === "published" && !page.noindex;
+  const requestedPlacements = [
+    page?.show_in_footer ? "footer" : null,
+    page?.show_on_home ? "homepage" : null,
+    page?.show_on_buy_sell ? "Buy/Sell page" : null,
+  ].filter(Boolean);
 
   return (
     <div className="admin-page">
@@ -131,7 +136,12 @@ export function SeoLandingPageForm({ page, action, matchingCount }: Props) {
             {matchingCount != null ? `${matchingCount} published listings currently match this page.` : null}
           </div>
           <div className="admin-note">
-            Public placement only appears when the page is published and noindex is off.
+            <strong>{isIndexable ? "Public links are active" : "Public links are inactive"}.</strong>{" "}
+            {isIndexable
+              ? requestedPlacements.length
+                ? `This page can appear in the ${requestedPlacements.join(", ")}.`
+                : "Choose at least one placement before saving an indexable page."
+              : "Placement choices are saved for review, but links appear only when the page is published and noindex is off."}
           </div>
           <div className="admin-field-row">
             <label className="admin-field admin-field-check">
@@ -218,7 +228,7 @@ export function SeoLandingPageForm({ page, action, matchingCount }: Props) {
             />
           </label>
           <p className="admin-muted">
-            Metadata is used for title tags, descriptions, canonicals, Open Graph, and social previews.
+            Metadata is used for title tags, descriptions, canonicals, Open Graph, and social previews. The site name is appended automatically unless the title already ends with “Estate Brothers”.
           </p>
         </div>
 

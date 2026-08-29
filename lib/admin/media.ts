@@ -99,3 +99,22 @@ export async function createExternalMediaAsset({
   return data;
 }
 
+/**
+ * Compensation helper for a media asset created during a failed owner mutation.
+ * Call only for newly created, still-unattached assets.
+ */
+export async function discardUnattachedMediaAsset(mediaId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("media_assets")
+    .select("source_type, storage_bucket, storage_path")
+    .eq("id", mediaId)
+    .maybeSingle();
+
+  if (data?.source_type === "upload" && data.storage_bucket && data.storage_path) {
+    await supabase.storage.from(data.storage_bucket).remove([data.storage_path]).catch(() => undefined);
+  }
+
+  await supabase.from("media_assets").delete().eq("id", mediaId);
+}
+

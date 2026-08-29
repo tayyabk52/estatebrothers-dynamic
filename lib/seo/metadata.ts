@@ -19,6 +19,21 @@ interface BuildMetadataOptions {
   authors?: string[];
 }
 
+function withSiteName(title: string) {
+  const normalizedTitle = title.trim();
+  const normalizedSiteName = SITE_NAME.toLocaleLowerCase();
+  const normalizedComparisonTitle = normalizedTitle.toLocaleLowerCase();
+
+  if (
+    normalizedComparisonTitle === normalizedSiteName ||
+    normalizedComparisonTitle.endsWith(`| ${normalizedSiteName}`)
+  ) {
+    return normalizedTitle;
+  }
+
+  return `${normalizedTitle} | ${SITE_NAME}`;
+}
+
 export function buildMetadata({
   title,
   description = DEFAULT_DESCRIPTION,
@@ -31,7 +46,7 @@ export function buildMetadata({
   modifiedTime,
   authors,
 }: BuildMetadataOptions): Metadata {
-  const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
+  const fullTitle = withSiteName(title);
   const canonicalUrl = canonicalPath.startsWith("http")
     ? canonicalPath
     : `${SITE_URL}${canonicalPath.startsWith("/") ? canonicalPath : `/${canonicalPath}`}`;

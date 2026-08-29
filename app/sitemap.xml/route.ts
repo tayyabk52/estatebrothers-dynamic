@@ -9,11 +9,13 @@ import {
 import { isCleanSeoLandingPath } from "@/lib/seo/landing-routes";
 
 const SITE_URL = "https://estatebrothers.pk";
-const CORE_ROUTES = {
-  "/": { changeFrequency: "weekly", priority: 1 },
+const ALWAYS_PUBLIC_ROUTES = {
   "/buy-sell": { changeFrequency: "daily", priority: 0.9 },
-  "/about": { changeFrequency: "monthly", priority: 0.8 },
   "/updates": { changeFrequency: "weekly", priority: 0.7 },
+} as const;
+
+const CMS_ROUTE_CONFIG = {
+  "/about": { changeFrequency: "monthly", priority: 0.8 },
   "/contact": { changeFrequency: "monthly", priority: 0.6 },
 } as const;
 
@@ -67,12 +69,25 @@ export async function GET() {
 
   const cmsUpdatedAt = new Map(cmsPages.map((page) => [page.path, page.updatedAt]));
   const entries: SitemapEntry[] = [
-    ...Object.entries(CORE_ROUTES).map(([path, config]) => ({
+    {
+      url: absoluteUrl("/"),
+      lastModified: cmsUpdatedAt.get("/"),
+      changeFrequency: "weekly",
+      priority: 1,
+    },
+    ...Object.entries(ALWAYS_PUBLIC_ROUTES).map(([path, config]) => ({
       url: absoluteUrl(path),
-      lastModified: cmsUpdatedAt.get(path),
       changeFrequency: config.changeFrequency,
       priority: config.priority,
     })),
+    ...Object.entries(CMS_ROUTE_CONFIG)
+      .filter(([path]) => cmsUpdatedAt.has(path))
+      .map(([path, config]) => ({
+        url: absoluteUrl(path),
+        lastModified: cmsUpdatedAt.get(path),
+        changeFrequency: config.changeFrequency,
+        priority: config.priority,
+      })),
     ...updates.map((update) => ({
       url: absoluteUrl(update.canonicalPath ?? `/updates/${update.slug}`),
       lastModified: update.updatedAt,

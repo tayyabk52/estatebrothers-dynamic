@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import { SafeMediaImage } from "@/components/ui/SafeMediaImage";
 
 interface Partner {
   name: string;
@@ -35,7 +35,7 @@ export function PartnersCarousel({
         <div className="partners-track">
           {carouselItems.map((partner, index) => (
             <div className="partner-card" key={`${partner.name}-${index}`}>
-              <Image
+              <SafeMediaImage
                 src={partner.image}
                 alt={partner.alt ?? partner.name}
                 width={120}

@@ -192,7 +192,7 @@ export async function getAllListingsAdmin() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("real_estate_listings")
-    .select("id, slug, title, listing_type_slug, status, price_label, phase, city, published_at, updated_at")
+    .select("id, slug, title, listing_type_slug, status, noindex, price_label, phase, city, published_at, updated_at")
     .order("updated_at", { ascending: false });
   return data ?? [];
 }

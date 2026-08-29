@@ -1,15 +1,21 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
+import { SafeMediaImage } from "@/components/ui/SafeMediaImage";
 import type { HomeStat, HomeTestimonial } from "@/lib/db/home-content";
 
 export function Testimonial({
   testimonials,
   stats,
+  eyebrow,
+  heading,
+  intro,
 }: {
   testimonials: HomeTestimonial[];
   stats: HomeStat[];
+  eyebrow?: string | null;
+  heading?: string | null;
+  intro?: string | null;
 }) {
   const [index, setIndex] = useState(0);
   const hasTestimonials = testimonials.length > 0;
@@ -29,6 +35,13 @@ export function Testimonial({
   return (
     <section className="testimonial" style={{ minHeight: "450px" }}>
       <div className="wrap">
+        {(eyebrow || heading || intro) && (
+          <header className="testimonial-head">
+            {eyebrow && <div className="eyebrow">{eyebrow}</div>}
+            {heading && <h2>{heading}</h2>}
+            {intro && <p>{intro}</p>}
+          </header>
+        )}
         {hasTestimonials && (
           <>
             <div className="nums">
@@ -39,19 +52,19 @@ export function Testimonial({
                   className={`num-btn${itemIndex === index ? " active" : ""}`}
                   onClick={() => setIndex(itemIndex)}
                 >
-                  <span className="marker">{itemIndex === index ? "●" : "○"}</span> 0{itemIndex + 1}
+                  <span className="marker" aria-hidden="true">{itemIndex === index ? "●" : "○"}</span> 0{itemIndex + 1}
                 </button>
               ))}
             </div>
             <div className="quote reveal">
               <blockquote key={index}>
-                <span className="mark">"</span>
+                <span className="mark">&quot;</span>
                 {testimonial.quote}
               </blockquote>
               <div className="attr">
                 <div className="av">
                   {testimonial.imageUrl && (
-                    <Image src={testimonial.imageUrl} alt={testimonial.name} width={40} height={40} loading="lazy" />
+                    <SafeMediaImage src={testimonial.imageUrl} alt={testimonial.name} width={40} height={40} loading="lazy" />
                   )}
                 </div>
                 <div className="who">

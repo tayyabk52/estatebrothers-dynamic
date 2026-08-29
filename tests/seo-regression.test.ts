@@ -17,6 +17,10 @@ import {
 } from "../lib/seo/validator";
 import robots from "../app/robots";
 import { canUseNextImage } from "../lib/media/images";
+import { normalizeFeaturedListings, normalizeFeaturedProjects } from "../lib/db/home-content";
+import { HOME_SECTION_DEFINITIONS, getHomeSectionDefinition } from "../lib/homepage/section-contract";
+import type { PageSectionWithBlocks } from "../lib/db/site";
+import type { NormalizedListing } from "../lib/types";
 
 describe("SEO Metadata Builder", () => {
   it("formats title and creates absolute canonical URL", () => {
@@ -39,6 +43,17 @@ describe("SEO Metadata Builder", () => {
 
     expect(meta.title).toEqual({ absolute: "Estate Brothers" });
     expect(meta.alternates?.canonical).toBe("https://estatebrothers.pk/");
+  });
+
+  it("does not duplicate the brand when an admin-managed title already contains it", () => {
+    const meta = buildMetadata({
+      title: "DHA Lahore Plots for Sale | Estate Brothers",
+      canonicalPath: "/dha-lahore-plots-for-sale",
+    });
+
+    expect(meta.title).toEqual({ absolute: "DHA Lahore Plots for Sale | Estate Brothers" });
+    expect(meta.openGraph?.title).toBe("DHA Lahore Plots for Sale | Estate Brothers");
+    expect(meta.twitter?.title).toBe("DHA Lahore Plots for Sale | Estate Brothers");
   });
 
   it("sets index, follow and googleBot directives when noIndex is false", () => {
@@ -289,6 +304,81 @@ describe("Admin-managed media rendering safety", () => {
   it("falls back away from Next image optimization for unallowlisted external media", () => {
     expect(canUseNextImage("https://cdn.example.com/property.jpg")).toBe(false);
     expect(canUseNextImage("http://estatebrothers.pk/insecure.jpg")).toBe(false);
+  });
+});
+
+describe("Homepage CMS production contract", () => {
+  it("keeps projects and listings as independent ordered homepage sections", () => {
+    expect(HOME_SECTION_DEFINITIONS.map((section) => section.key)).toEqual([
+      "hero-stats",
+      "partners",
+      "featured-projects",
+      "featured-listings",
+      "leadership",
+      "life-gallery",
+      "awards-recognition",
+      "team-stories",
+      "testimonials",
+      "testimonial-stats",
+    ]);
+    expect(getHomeSectionDefinition("featured-listings")?.defaultSortOrder).toBeGreaterThan(
+      getHomeSectionDefinition("featured-projects")?.defaultSortOrder ?? 0,
+    );
+  });
+
+  it("renders only explicitly linked, indexable featured listings with a block image override", () => {
+    const listing = {
+      id: "listing-1",
+      slug: "linked-listing",
+      type: "plot",
+      phase: "DHA Phase 6",
+      project: null,
+      block: null,
+      city: "Lahore",
+      size: "1 Kanal",
+      price: "PKR 5 Crore",
+      priceNumeric: 50000000,
+      status: "Available",
+      availability: "available",
+      noindex: false,
+      contactPersonId: null,
+      thumbnail: "/listing.jpg",
+      gallery: [],
+      notes: "A linked published listing.",
+      updatedAt: "2026-08-29",
+    } satisfies NormalizedListing;
+    const sections = [{
+      section_key: "featured-listings",
+      page_blocks: [{
+        id: "block-1",
+        listing_id: "listing-1",
+        media_assets: { media_type: "image", public_url: "/override.jpg", external_url: null, thumbnail_url: null, alt_text: "Front view" },
+      }],
+    }] as unknown as PageSectionWithBlocks[];
+
+    const result = normalizeFeaturedListings(sections, [listing]);
+    expect(result).toHaveLength(1);
+    expect(result[0].listing.slug).toBe("linked-listing");
+    expect(result[0].imageUrl).toBe("/override.jpg");
+    expect(result[0].alt).toBe("Front view");
+  });
+
+  it("keeps every published project block instead of silently capping the collection", () => {
+    const sections = [{
+      section_key: "featured-projects",
+      page_blocks: Array.from({ length: 7 }, (_, index) => ({
+        id: `project-${index}`,
+        title: `Project ${index}`,
+        body: `Useful project summary ${index}`,
+        link_label: "Lahore",
+        link_url: "/buy-sell",
+        icon_name: "Residential",
+        attributes: {},
+        page_block_media: [],
+      })),
+    }] as unknown as PageSectionWithBlocks[];
+
+    expect(normalizeFeaturedProjects(sections)).toHaveLength(7);
   });
 });
 

@@ -26,7 +26,17 @@ export async function getPageByIdAdmin(id: string): Promise<PageWithSections | n
         media_assets:media_id(*),
         page_blocks(
           *,
-          media_assets:media_id(*)
+          media_assets:media_id(*),
+          page_block_media(
+            id,
+            page_block_id,
+            media_id,
+            sort_order,
+            is_primary,
+            caption,
+            created_at,
+            media_assets:media_id(*)
+          )
         )
       )
     `
@@ -40,7 +50,12 @@ export async function getPageByIdAdmin(id: string): Promise<PageWithSections | n
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((section) => ({
       ...section,
-      page_blocks: (section.page_blocks ?? []).sort((a, b) => a.sort_order - b.sort_order),
+      page_blocks: (section.page_blocks ?? [])
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .map((block) => ({
+          ...block,
+          page_block_media: (block.page_block_media ?? []).sort((a, b) => a.sort_order - b.sort_order),
+        })),
     }));
   return page;
 }

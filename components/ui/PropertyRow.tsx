@@ -1,8 +1,9 @@
-import Image from "next/image";
+import { SafeMediaImage } from "@/components/ui/SafeMediaImage";
 
 interface FeaturedProperty {
   id: string;
   image: string;
+  imageAlt?: string;
   photoNote: string;
   place: string;
   name: string;
@@ -20,17 +21,15 @@ interface FeaturedProperty {
 export function PropertyRow({ property }: { property: FeaturedProperty }) {
   return (
     <article className="property reveal" id={`p-${property.id}`}>
-      <span className="idx">№ {property.id}</span>
+      <span className="idx">No. {property.id}</span>
       <div className="img">
-        <Image
+        <SafeMediaImage
           src={property.image}
-          alt={`${property.name} exterior`}
+          alt={property.imageAlt ?? `${property.name} property listing`}
           width={600}
           height={400}
           loading="lazy"
           sizes="(max-width:640px) 100vw, (max-width:1280px) 50vw, 640px"
-          placeholder="blur"
-          blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
         />
         <span className="ph">{property.photoNote}</span>
       </div>
@@ -42,25 +41,13 @@ export function PropertyRow({ property }: { property: FeaturedProperty }) {
       </div>
       <div className="specs">
         <div className="price">{property.priceLabel}</div>
-        <div className="row">
-          <span>Plot</span>
-          <span>{property.plot}</span>
-        </div>
-        <div className="row">
-          <span>Covered</span>
-          <span>{property.covered.toLocaleString()} sf</span>
-        </div>
-        <div className="row">
-          <span>Bed</span>
-          <span>{property.beds}</span>
-        </div>
-        <div className="row">
-          <span>Bath</span>
-          <span>{property.baths}</span>
-        </div>
+        <div className="row"><span>Plot</span><span>{property.plot}</span></div>
+        <div className="row"><span>Covered</span><span>{property.covered.toLocaleString()} sf</span></div>
+        <div className="row"><span>Bed</span><span>{property.beds}</span></div>
+        <div className="row"><span>Bath</span><span>{property.baths}</span></div>
       </div>
       <span className={`tag tag-${property.tag}`}>{property.status}</span>
-      <span className="arrow">→</span>
+      <span className="arrow" aria-hidden="true">→</span>
     </article>
   );
 }

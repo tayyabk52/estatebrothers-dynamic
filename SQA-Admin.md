@@ -489,3 +489,45 @@ Remaining notes:
 - Admin help is currently an answer-only assistant. It does not edit records, submit forms, or mutate Supabase data.
 - Future sections should add new verified markdown guides under `features/admin-help/knowledgebase/` and register them in `ADMIN_HELP_DOCS`.
 - No database migration was required for this feature.
+
+R. Homepage CMS production-hardening implementation and verification — 2026-08-30
+
+Resolved defects and production changes:
+
+- Featured Projects and Featured Listings are now independent CMS sections rendered together in database `sort_order`; one no longer silently replaces the other.
+- Added a real `page_blocks.listing_id` relationship. Homepage listing blocks select a published/indexable inventory row by UUID, and public title, canonical route, type, price, availability, location, attributes, and default media come from that row.
+- Backfilled the existing DHA Phase 6 block to listing `60000000-0000-0000-0000-000000000001`.
+- Added project multi-image gallery upload, alt/title/sort/primary editing, relation removal, and compensating cleanup for partial upload/database failures.
+- Added explicit section/block deletion. The root homepage is protected: route `/`, key `home`, published state, and indexability are server-enforced, and root deletion is unavailable.
+- Added a shared section contract. Admin only exposes fields/media controls used by each public section; server validation re-reads the database section type instead of trusting hidden form values.
+- Existing media is preserved unless explicitly removed/replaced. New uploads are image-only, alt text is editable, and unattached assets are cleaned up after a failed owning mutation.
+- Wired project galleries/links, award references, story/video links, gallery links, section copy, and testimonial copy into public output. Removed silent public item caps; project cards retain a bounded four-image preview while admin retains the full gallery.
+- Routed homepage CMS imagery through `SafeMediaImage` for local, Supabase, production-domain, and arbitrary browser-safe external URLs.
+- Missing/unpublished root now produces a real 404 and fail-closed noindex metadata. About/contact also return real 404s when unavailable and follow CMS noindex state.
+- Sitemap keeps `/`, `/buy-sell`, and `/updates`, while About/Contact are included only when their CMS rows are published/indexable.
+- Upgraded Next.js `16.2.6` to official security release `16.3.3`; the production audit moved from three high-severity findings to zero vulnerabilities.
+
+Database migration and live readback:
+
+- Applied `20260829_homepage_content_production_hardening.sql` as live migration `20260829103833_homepage_content_production_hardening` on project `zucpsqjiaexxxobzwodd`.
+- Verified nullable UUID `listing_id`, `ON DELETE SET NULL` FK, listing lookup/uniqueness indexes, `page_block_media.media_id` index, authenticated gallery mutation policy, anonymous `is_admin()` denial, authenticated/service-role grants, listing backfill, and homepage order 5/10/20/30/40/50/60/70/80/90.
+
+Validation:
+
+- `npx.cmd tsc --noEmit`: passed.
+- `npm.cmd run test:seo`: passed, 24/24.
+- `npm.cmd run build`: passed on Next.js 16.3.3; 58 static/PPR routes generated.
+- `npm.cmd audit --omit=dev`: passed, zero vulnerabilities.
+- `git diff --check`: passed; Windows line-ending notices only.
+- Production-build Playwright verified 200 homepage, production canonical, index/follow, one H1, no missing alt/broken images/nested forms/application console errors, four projects, four gallery thumbnails, and the linked DHA listing route.
+- Authenticated Playwright verified the selected listing UUID, gallery edit/remove controls, section/block deletes, locked root identity, no root delete, no console errors, and no 390px horizontal overflow.
+- `/sitemap.xml` returned XML containing root, About, Contact, and the canonical DHA listing; robots excluded admin/API; an unknown public path returned 404.
+
+Remaining production items:
+
+- P1 configuration: Supabase leaked-password protection is disabled. Enable it and rotate the current admin credential to a unique production password before client handoff. This blocks safe production administration until completed.
+- P2 UX: ADM-009 inline Server Action error presentation remains open across several forms.
+- P2 configuration: review the custom `/_next/static/:path*` Cache-Control rule before Vercel deployment; Next.js owns immutable static-asset caching.
+- P3/content: three current project cards use the valid broad `/buy-sell` fallback because no narrower verified destination is stored. Assign factual relevant destinations when matching inventory or an eligible landing page exists.
+- Expected: Gallery/events is draft and absent publicly. Homepage SEO links are absent because no landing page currently qualifies as published, indexable, and promoted on home; review/noindex content is correctly excluded.
+- Accepted advisor warning: authenticated execution of SECURITY DEFINER `is_admin()` is intentional. It is unavailable to anon, current-user scoped through `auth.uid()`, required by server authorization, and uses a fixed `search_path`.

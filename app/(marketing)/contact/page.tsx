@@ -1,4 +1,5 @@
 import { ContactClient } from "@/components/pages/ContactClient";
+import { notFound } from "next/navigation";
 import { getPublishedFAQs, getPublishedOfficeLocations, getPublishedPage, getSiteSettings, mediaUrl } from "@/lib/db/site";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { buildFAQSchema } from "@/lib/seo/structured-data";
@@ -11,16 +12,19 @@ export async function generateMetadata() {
     description: page?.meta_description,
     canonicalPath: "/contact",
     image: page?.og_image ?? mediaUrl(page?.hero_media) ?? "/og-default.jpg",
+    noIndex: page?.noindex ?? true,
     keywords: page?.keywords ?? ["contact real estate agent Lahore", "property inquiry Lahore"],
   });
 }
 
 export default async function ContactPage() {
-  const [settings, faqs, offices] = await Promise.all([
+  const [page, settings, faqs, offices] = await Promise.all([
+    getPublishedPage("/contact"),
     getSiteSettings(),
     getPublishedFAQs("/contact"),
     getPublishedOfficeLocations(),
   ]);
+  if (!page) notFound();
   const faqSchema = faqs.length
     ? buildFAQSchema(faqs.map((faq) => ({ question: faq.question, answer: faq.answer })))
     : null;

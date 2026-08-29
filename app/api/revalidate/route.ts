@@ -7,6 +7,7 @@ const TABLE_TAG_MAP: Record<string, string[]> = {
   pages: ["all-pages"],
   page_sections: ["all-pages"],
   page_blocks: ["all-pages"],
+  page_block_media: ["all-pages"],
   media_assets: ["all-pages", "all-listings", "updates", "team", "offices", "site-settings", "seo-landing-pages", "seo-pages"],
   site_settings: ["site-settings"],
   team_members: ["team"],

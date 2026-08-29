@@ -76,6 +76,10 @@ function validatePublishReadiness(input: {
   city: string | null;
   phase: string | null;
   neighborhood: string | null;
+  showInFooter: boolean;
+  showOnHome: boolean;
+  showOnBuySell: boolean;
+  publicLinkLabel: string | null;
 }) {
   if (input.status !== "published") return;
 
@@ -101,6 +105,12 @@ function validatePublishReadiness(input: {
     }
     if (!input.listingTypeSlug && !input.city && !input.phase && !input.neighborhood) {
       throw new Error("Indexable SEO landing pages need at least one listing filter so the page has a clear purpose.");
+    }
+    if (!input.showInFooter && !input.showOnHome && !input.showOnBuySell) {
+      throw new Error("Indexable SEO landing pages need at least one public placement so people and search engines can discover them through a normal site link.");
+    }
+    if (!input.publicLinkLabel) {
+      throw new Error("Indexable SEO landing pages need a descriptive public link label.");
     }
   }
 }
@@ -193,6 +203,10 @@ function buildPayload(formData: FormData) {
   const city = nullableText(formData, "city");
   const phase = nullableText(formData, "phase");
   const neighborhood = nullableText(formData, "neighborhood");
+  const showInFooter = formData.get("show_in_footer") === "on";
+  const showOnHome = formData.get("show_on_home") === "on";
+  const showOnBuySell = formData.get("show_on_buy_sell") === "on";
+  const publicLinkLabel = nullableText(formData, "public_link_label") || title;
 
   validatePublishReadiness({
     status,
@@ -207,6 +221,10 @@ function buildPayload(formData: FormData) {
     city,
     phase,
     neighborhood,
+    showInFooter,
+    showOnHome,
+    showOnBuySell,
+    publicLinkLabel,
   });
 
   return {
@@ -228,10 +246,10 @@ function buildPayload(formData: FormData) {
     neighborhood,
     listing_status: nullableText(formData, "listing_status"),
     filters: parseFilters(textValue(formData, "filters_json")),
-    show_in_footer: formData.get("show_in_footer") === "on",
-    show_on_home: formData.get("show_on_home") === "on",
-    show_on_buy_sell: formData.get("show_on_buy_sell") === "on",
-    public_link_label: nullableText(formData, "public_link_label") || title,
+    show_in_footer: showInFooter,
+    show_on_home: showOnHome,
+    show_on_buy_sell: showOnBuySell,
+    public_link_label: publicLinkLabel,
     public_link_description: nullableText(formData, "public_link_description"),
     sort_order: Number(textValue(formData, "sort_order") || "0") || 0,
     published_at: status === "published" ? textValue(formData, "published_at") || new Date().toISOString() : null,

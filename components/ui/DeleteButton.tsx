@@ -9,9 +9,9 @@ export function DeleteButton({ action, label = "Delete" }: Props) {
   return (
     <form
       action={action}
-      onSubmit={(e) => {
+      onSubmit={(event) => {
         if (!confirm(`${label} — are you sure? This cannot be undone.`)) {
-          e.preventDefault();
+          event.preventDefault();
         }
       }}
     >

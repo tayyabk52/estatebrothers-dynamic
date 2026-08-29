@@ -476,3 +476,28 @@ To enable sub-100ms full-text search across listings, updates, pages, and team m
   - Playwright production-build smoke test on `127.0.0.1:3001` passed login, `/admin/help`, guide cards, Help nav, floating drawer, and guide fallback answer.
 - Runtime note: Gemini model API accepted `gemini-3.7-flash`, but validation call hit a temporary 503 high-demand response; fallback worked.
 - Future admin sections should add verified markdown files under `features/admin-help/knowledgebase/` and register them in `ADMIN_HELP_DOCS`.
+
+### Homepage CMS Production Hardening — 2026-08-30
+
+- Implemented independent, database-ordered Featured Projects and Featured Listings sections so both render when published.
+- Added/applied `20260829_homepage_content_production_hardening.sql` (`20260829103833_homepage_content_production_hardening` live): nullable `page_blocks.listing_id` FK, lookup/uniqueness and media indexes, authenticated-only gallery mutations, anonymous `is_admin()` denial, and normalized section ordering.
+- Backfilled the DHA Phase 6 block to its real published/indexable listing. Public listing cards now read canonical inventory data/routes from that relation, with optional block image override.
+- Added homepage production CRUD: section/block deletion, protected root identity/publication/indexability, section-aware controls and DB-grounded validation, project multi-image upload/edit/remove/primary controls, explicit media replacement/removal, preservation of unrelated media, and partial-failure cleanup.
+- Wired previously unused project/gallery/award/story/testimonial fields into public output, removed silent content caps, retained semantic headings/links, and routed CMS imagery through `SafeMediaImage`.
+- Updated homepage/About/Contact 404/noindex behavior and made sitemap About/Contact inclusion depend on published/indexable CMS rows.
+- Upgraded Next.js `16.2.6` to official security release `16.3.3`; production dependency audit now reports zero vulnerabilities.
+- Added `vitest.config.mts` alias support and homepage CMS regression coverage; SEO suite now passes 24/24.
+- Validation passed: typecheck, 24 SEO tests, Next 16.3.3 production build, zero-vulnerability production audit, diff check, authenticated desktop/mobile Playwright, live Supabase readback, and sitemap/robots/canonical/listing/media/404 checks.
+- Required before production admin handoff: enable Supabase leaked-password protection, rotate the current admin credential, review the custom `/_next/static/:path*` Cache-Control rule, and assign narrower verified destinations to project cards currently using `/buy-sell` when such destinations exist.
+- Expected/accepted: `is_admin()` remains authenticated/service-role callable because server authorization needs it; draft Gallery/events remains private; homepage SEO links remain absent until an eligible landing page is published/indexable/promoted; ADM-009 inline form-error UX remains separate.
+
+### SEO Landing Discovery Activation — 2026-08-30
+
+- Verified the existing `DHA Lahore Plots for Sale` landing page against its live Supabase content, media, canonical path, publication state, listing filters, and four matching published plot listings before activation.
+- Confirmed Footer, Homepage, and Buy/Sell discovery components were already wired; the page was hidden because its live `noindex` flag was still enabled even though all three placement flags were selected.
+- Safely changed only that verified Supabase row to `noindex = false`; its published status and Footer/Home/Buy-Sell placement flags remain enabled.
+- Added an admin publishing safeguard: an indexable SEO landing page now requires a descriptive public link label and at least one internal-link placement.
+- Updated the admin list/form to distinguish requested-but-inactive placements from live public links, preventing the previous misleading “Public links” display.
+- Fixed duplicate site branding when an admin meta title already ends in `| Estate Brothers`, and added regression coverage for title, Open Graph, and Twitter metadata.
+- Added a homepage discovery fallback so Home placement still renders if both optional Featured Projects and Featured Listings sections are absent.
+- Validation passed before push: `npx.cmd tsc --noEmit`, 25/25 SEO tests, `git diff --check`, and the Next.js 16.3.3 production build. The build prerendered `/dha-lahore-plots-for-sale` as an indexable route.

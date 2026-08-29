@@ -47,6 +47,12 @@ export default async function SeoLandingPagesAdminPage() {
             <tbody>
               {pages.map((page) => {
                 const matches = listings.filter((listing) => listingMatchesSeoLandingPage(listing, page)).length;
+                const requestedPlacements = [
+                  page.show_in_footer ? "Footer" : null,
+                  page.show_on_home ? "Home" : null,
+                  page.show_on_buy_sell ? "Buy/Sell" : null,
+                ].filter(Boolean).join(", ");
+                const placementsAreLive = page.status === "published" && !page.noindex;
                 return (
                   <tr key={page.id}>
                     <td>
@@ -61,11 +67,16 @@ export default async function SeoLandingPagesAdminPage() {
                     <td>{page.status}</td>
                     <td>{page.noindex ? "Noindex" : "Indexable"}</td>
                     <td>
-                      {[
-                        page.show_in_footer ? "Footer" : null,
-                        page.show_on_home ? "Home" : null,
-                        page.show_on_buy_sell ? "Buy/Sell" : null,
-                      ].filter(Boolean).join(", ") || "None"}
+                      {requestedPlacements ? (
+                        <>
+                          <span>{placementsAreLive ? requestedPlacements : "Inactive"}</span>
+                          <span className="admin-subline">
+                            {placementsAreLive
+                              ? "Live public links"
+                              : `Requested: ${requestedPlacements}. Publish and turn off noindex to display.`}
+                          </span>
+                        </>
+                      ) : "None requested"}
                     </td>
                     <td>{matches}</td>
                     <td>{page.updated_at.slice(0, 10)}</td>

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   getPublishedPage,
   getPublishedOfficeLocations,
@@ -27,6 +28,7 @@ export async function generateMetadata() {
     description: page?.meta_description,
     canonicalPath: "/about",
     image: page?.og_image ?? mediaUrl(page?.hero_media) ?? "/og-default.jpg",
+    noIndex: page?.noindex ?? true,
     keywords: page?.keywords ?? ["real estate agent Lahore", "DHA Phase 6 real estate"],
   });
 }
@@ -372,7 +374,7 @@ export default async function AboutPage() {
     getPublishedOfficeLocations(),
   ]);
 
-  if (!page) return <EmptyAbout />;
+  if (!page) notFound();
 
   const heroImage = mediaUrl(page.hero_media);
   const sections = page.page_sections ?? [];

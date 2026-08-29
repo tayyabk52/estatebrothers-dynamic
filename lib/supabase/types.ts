@@ -362,6 +362,51 @@ export type Database = {
           },
         ]
       }
+      page_block_media: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          is_primary: boolean
+          media_id: string
+          page_block_id: string
+          sort_order: number
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          media_id: string
+          page_block_id: string
+          sort_order?: number
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          media_id?: string
+          page_block_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_block_media_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "page_block_media_page_block_id_fkey"
+            columns: ["page_block_id"]
+            isOneToOne: false
+            referencedRelation: "page_blocks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       page_blocks: {
         Row: {
           attributes: Json
@@ -373,6 +418,7 @@ export type Database = {
           link_kind: Database["public"]["Enums"]["link_kind"] | null
           link_label: string | null
           link_url: string | null
+          listing_id: string | null
           media_id: string | null
           section_id: string
           sort_order: number
@@ -390,6 +436,7 @@ export type Database = {
           link_kind?: Database["public"]["Enums"]["link_kind"] | null
           link_label?: string | null
           link_url?: string | null
+          listing_id?: string | null
           media_id?: string | null
           section_id: string
           sort_order?: number
@@ -407,6 +454,7 @@ export type Database = {
           link_kind?: Database["public"]["Enums"]["link_kind"] | null
           link_label?: string | null
           link_url?: string | null
+          listing_id?: string | null
           media_id?: string | null
           section_id?: string
           sort_order?: number
@@ -415,6 +463,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "page_blocks_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "real_estate_listings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "page_blocks_media_id_fkey"
             columns: ["media_id"]
