@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Inter_Tight, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import {
   buildOrganizationSchema,
   buildRealEstateAgentSchema,
@@ -92,6 +93,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body suppressHydrationWarning>
         <div id="scrollBar" aria-hidden="true" />
         {children}
+        <Analytics />
       </body>
     </html>
   );
