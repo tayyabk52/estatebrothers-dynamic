@@ -21,6 +21,35 @@ function listingAvailability(formData: FormData, fallback = "available") {
   return String(formData.get("availability") || fallback).trim() || fallback;
 }
 
+function attributeRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+}
+
+function lines(value: FormDataEntryValue | null) {
+  return String(value || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+}
+
+function listingAttributes(formData: FormData, existing?: unknown) {
+  const paymentPlan = lines(formData.get("payment_plan")).flatMap((line) => {
+    const separator = line.indexOf("|");
+    if (separator < 1) return [];
+    const label = line.slice(0, separator).trim();
+    const amount = line.slice(separator + 1).trim();
+    return label && amount ? [{ label, amount }] : [];
+  });
+  return {
+    ...attributeRecord(existing),
+    property_type: String(formData.get("property_type") || "Land").trim() || "Land",
+    source_listing_id: nullableString(formData.get("source_listing_id")),
+    source_updated_at: nullableString(formData.get("source_updated_at")),
+    payment_plan: paymentPlan,
+    amenities: lines(formData.get("amenities")),
+    terms: lines(formData.get("terms")),
+  };
+}
+
 function revalidateListingSurfaces(path?: string | null) {
   revalidateTag("all-listings", "max");
   revalidatePath("/admin/listings");
@@ -56,6 +85,7 @@ export async function createListing(formData: FormData) {
       city: (formData.get("city") as string) || null,
       block: (formData.get("block") as string) || null,
       project: (formData.get("project") as string) || null,
+      neighborhood: nullableString(formData.get("neighborhood")),
       size_label: (formData.get("size_label") as string) || null,
       area_value: formData.get("area_value") ? Number(formData.get("area_value")) : null,
       area_unit: (formData.get("area_unit") as string) || null,
@@ -66,6 +96,7 @@ export async function createListing(formData: FormData) {
       listing_status: (formData.get("listing_status") as string) || null,
       summary: (formData.get("summary") as string) || null,
       description: (formData.get("description") as string) || null,
+      attributes: listingAttributes(formData),
       meta_title: (formData.get("meta_title") as string) || title,
       meta_description: metaDescription,
       status,
@@ -94,7 +125,7 @@ export async function updateListing(id: string, formData: FormData) {
 
   const { data: existing } = await supabase
     .from("real_estate_listings")
-    .select("slug, listing_type_slug, canonical_path, availability")
+    .select("slug, listing_type_slug, canonical_path, availability, attributes")
     .eq("id", id)
     .single();
 
@@ -117,6 +148,7 @@ export async function updateListing(id: string, formData: FormData) {
       city: (formData.get("city") as string) || null,
       block: (formData.get("block") as string) || null,
       project: (formData.get("project") as string) || null,
+      neighborhood: nullableString(formData.get("neighborhood")),
       size_label: (formData.get("size_label") as string) || null,
       area_value: formData.get("area_value") ? Number(formData.get("area_value")) : null,
       area_unit: (formData.get("area_unit") as string) || null,
@@ -127,6 +159,7 @@ export async function updateListing(id: string, formData: FormData) {
       listing_status: (formData.get("listing_status") as string) || null,
       summary: (formData.get("summary") as string) || null,
       description: (formData.get("description") as string) || null,
+      attributes: listingAttributes(formData, existing?.attributes),
       meta_title: (formData.get("meta_title") as string) || null,
       meta_description: metaDescription,
       status,

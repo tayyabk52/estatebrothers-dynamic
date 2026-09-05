@@ -7,7 +7,7 @@ import "@/styles/updates.css";
 export const metadata = buildMetadata({
   title: "Updates",
   description:
-    "Latest Estate Brothers announcements, Facebook posts, MOU activity, market notes, and property updates.",
+    "Estate Brothers company updates, professional memberships, registrations, partner awards, and property announcements from Lahore.",
   canonicalPath: "/updates",
   keywords: ["real estate news Lahore", "DHA property updates"],
 });

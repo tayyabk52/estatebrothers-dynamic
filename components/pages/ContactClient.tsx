@@ -72,7 +72,7 @@ export function ContactClient({
             <p>
               Speak with our team for property services, investment guidance, buying, selling, or
               valuation support. Estate Brothers is available 24/7 from our DHA Phase 6 Lahore
-              office and branch network.
+              office.
             </p>
           </div>
         </div>

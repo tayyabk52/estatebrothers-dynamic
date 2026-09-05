@@ -134,6 +134,9 @@
 .detail-list{border-top:1px solid var(--rule-strong);padding-top:16px}
 .detail-list ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
 .detail-list li{padding:7px 0;border-bottom:1px solid var(--rule);font-size:13.5px;color:var(--graphite)}
+.detail-list li.payment-row{display:flex;justify-content:space-between;gap:16px;align-items:baseline}
+.detail-list li.payment-row span{color:var(--graphite)}
+.detail-list li.payment-row strong{font-size:13px;color:var(--ink);font-weight:700;text-align:right}
 .detail-contact{border:1px solid rgba(46,74,58,.26);background:#E6EEE8;padding:14px 16px;display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center}
 .detail-contact-top{box-shadow:inset 3px 0 0 var(--accent)}
 .detail-contact-id{display:flex;flex-direction:column;gap:2px;min-width:0}

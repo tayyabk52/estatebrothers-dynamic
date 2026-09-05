@@ -155,14 +155,14 @@ export function UpdatesClient({ updates }: Props) {
               <span className="serif-i">one feed.</span>
             </h1>
             <p>
-              A clean public record for Estate Brothers news, Facebook activity, MOU posts,
-              property announcements, and client-facing updates.
+              Explore Estate Brothers registrations, professional memberships, partner awards,
+              property announcements, and company updates.
             </p>
           </div>
           <div className="updates-hero-note reveal">
             <span className="mono">Published feed</span>
             <strong>{updates.length}</strong>
-            <span>market insights</span>
+            <span>published updates</span>
           </div>
         </div>
       </section>

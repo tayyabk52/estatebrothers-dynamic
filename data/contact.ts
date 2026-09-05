@@ -7,7 +7,7 @@ export const offices = [
     city: "Main DHA Office",
     addr: "Top Floor 44-A Main DHA Office Phase 6, Lahore, Pakistan, 54000\n0325 2222330",
   },
-  { city: "Branch Network", addr: "4 branches serving clients across Pakistan\n30+ professionals" },
+  { city: "Property Advisory", addr: "Buying, selling, and investment guidance\n30+ professionals" },
   { city: "Online", addr: "estatebrothers786@gmail.com\nInstagram: estatebrothers1" },
 ];
 

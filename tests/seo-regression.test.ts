@@ -329,6 +329,7 @@ describe("Homepage CMS production contract", () => {
   it("renders only explicitly linked, indexable featured listings with a block image override", () => {
     const listing = {
       id: "listing-1",
+      title: "1 Kanal Plot in DHA Phase 6",
       slug: "linked-listing",
       type: "plot",
       phase: "DHA Phase 6",
@@ -341,10 +342,20 @@ describe("Homepage CMS production contract", () => {
       status: "Available",
       availability: "available",
       noindex: false,
+      metaTitle: null,
+      metaDescription: null,
+      keywords: [],
       contactPersonId: null,
       thumbnail: "/listing.jpg",
       gallery: [],
       notes: "A linked published listing.",
+      neighborhood: "DHA Phase 6",
+      propertyType: "Land",
+      paymentPlan: [],
+      amenities: [],
+      terms: [],
+      sourceListingId: null,
+      sourceUpdatedAt: null,
       updatedAt: "2026-08-29",
     } satisfies NormalizedListing;
     const sections = [{

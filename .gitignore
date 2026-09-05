@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/.playwright-mcp/
+/docs/content-migration/original-media/
 
 # next.js
 /.next/

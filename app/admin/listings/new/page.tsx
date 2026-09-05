@@ -70,6 +70,10 @@ export default async function NewListingPage() {
             <label className="admin-field">Block<input type="text" name="block" placeholder="C Block" /></label>
             <label className="admin-field">Project<input type="text" name="project" placeholder="Main Boulevard" /></label>
           </div>
+          <div className="admin-field-row">
+            <label className="admin-field">Neighborhood<input type="text" name="neighborhood" placeholder="Safari Garden" /></label>
+            <label className="admin-field">Property type<input type="text" name="property_type" defaultValue="Land" placeholder="Land / Commercial" /></label>
+          </div>
         </div>
 
         <div className="admin-form-section">
@@ -109,6 +113,18 @@ export default async function NewListingPage() {
           </label>
           <label className="admin-field">Summary<textarea name="summary" rows={2} placeholder="Brief 1-2 sentence overview of the property" /></label>
           <label className="admin-field">Description<textarea name="description" rows={4} placeholder="Detailed description of features, floor plan, and unique selling points" /></label>
+        </div>
+
+        <div className="admin-form-section">
+          <h2>Plot payment details</h2>
+          <p className="admin-help">These fields render as structured sections on plot detail pages. Enter one item per line.</p>
+          <label className="admin-field">Payment plan (Label | Amount)<textarea name="payment_plan" rows={6} placeholder={"Booking | PKR 4 Lac\n36 monthly installments | PKR 15,000 each"} /></label>
+          <label className="admin-field">Project facilities<textarea name="amenities" rows={5} placeholder={"Gated community\nCentral parks\nSchool"} /></label>
+          <label className="admin-field">Terms<textarea name="terms" rows={4} placeholder="One term per line" /></label>
+          <div className="admin-field-row">
+            <label className="admin-field">Source updated date<input type="date" name="source_updated_at" /></label>
+            <label className="admin-field">Public listing reference<input type="text" name="source_listing_id" placeholder="plot-project-size" /></label>
+          </div>
         </div>
 
         <div className="admin-form-section">

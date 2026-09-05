@@ -3,6 +3,7 @@
 
 export interface NormalizedPlot {
   id: string;
+  title: string;
   slug: string;
   type: "plot";
   phase: string | null;
@@ -15,11 +16,21 @@ export interface NormalizedPlot {
   status: string | null;
   availability: string | null;
   noindex: boolean;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  keywords: string[];
   contactPersonId: string | null;
   thumbnail?: string | null;
   gallery: string[];
   ogImage?: string | null;
   notes: string | null;
+  neighborhood: string | null;
+  propertyType: string;
+  paymentPlan: { label: string; amount: string }[];
+  amenities: string[];
+  terms: string[];
+  sourceListingId: string | null;
+  sourceUpdatedAt: string | null;
   updatedAt: string;
 }
 
@@ -36,6 +47,9 @@ export interface NormalizedHouse {
   status: string | null;
   availability: string | null;
   noindex: boolean;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  keywords: string[];
   bedrooms: number | null;
   bathrooms: number | null;
   contactPersonId: string | null;

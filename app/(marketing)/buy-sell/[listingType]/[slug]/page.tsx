@@ -33,19 +33,19 @@ export async function generateMetadata({ params }: PageProps) {
 
   const title = isHouse
     ? house!.title
-    : `${plot!.phase} ${plot!.size} Plot`;
+    : plot!.title;
 
   const description = isHouse
     ? `${title} for sale in ${house!.phase}, ${house!.city}. Price: ${listing.price}. ${house!.bedrooms} bed, ${house!.bathrooms} bath.`
     : `${listing.size} plot for sale in ${plot!.phase}, ${listing.city}. Price: ${listing.price}. Contact Estate Brothers.`;
 
   return buildMetadata({
-    title,
-    description,
+    title: listing.metaTitle ?? title,
+    description: listing.metaDescription ?? description,
     canonicalPath: `/buy-sell/${listingType}/${slug}`,
     image: (isHouse ? house!.ogImage ?? house!.thumbnail : plot!.ogImage ?? plot!.thumbnail) ?? "/og-default.jpg",
     noIndex: listing.noindex,
-    keywords: [
+    keywords: listing.keywords.length ? listing.keywords : [
       `${listing.phase ?? ""} ${listing.size ?? ""}`.trim(),
       `${listing.type} for sale Lahore`,
       "Estate Brothers listings",
@@ -77,7 +77,7 @@ function ContactPanel({
         )}
         {agent.email && <a href={`mailto:${agent.email}`}>Email</a>}
       </div>
-      <span className="mono detail-listing-id">{listingId.slice(0, 8)}</span>
+      <span className="mono detail-listing-id">{listingId}</span>
     </aside>
   );
 }
@@ -116,12 +116,12 @@ export default async function ListingDetailPage({ params }: PageProps) {
   const isHouse = listing.type === "house";
   const house = isHouse ? (listing as NormalizedHouse) : null;
   const plot = !isHouse ? (listing as NormalizedPlot) : null;
-  const itemTitle = isHouse ? house!.title : `${plot!.phase} ${plot!.size} Plot`;
+  const itemTitle = isHouse ? house!.title : plot!.title;
 
   const listingSchema = buildRealEstateListingSchema({
     slug: listing.slug,
     type: listing.type,
-    title: isHouse ? house!.title : undefined,
+    title: itemTitle,
     notes: plot?.notes ?? undefined,
     phase: listing.phase ?? undefined,
     size: listing.size ?? undefined,
@@ -138,7 +138,7 @@ export default async function ListingDetailPage({ params }: PageProps) {
       postalCode: house!.location.postalCode ?? "",
       country: "PK",
     } : undefined,
-    updatedAt: listing.updatedAt,
+    updatedAt: plot?.sourceUpdatedAt ?? listing.updatedAt,
   });
 
   const breadcrumbSchema = buildBreadcrumbSchema([
@@ -209,7 +209,7 @@ export default async function ListingDetailPage({ params }: PageProps) {
             <section className="detail-body">
               <div className="wrap">
                 <div className="detail-main">
-                  <ContactPanel agent={agent} listingId={house.id} compact />
+                  <ContactPanel agent={agent} listingId={house.id.slice(0, 8)} compact />
                   <div className="detail-summary-table">
                     <table>
                       <tbody>
@@ -272,41 +272,41 @@ export default async function ListingDetailPage({ params }: PageProps) {
             <section className="detail-body">
               <div className="wrap">
                 <div className="detail-main">
-                  <ContactPanel agent={agent} listingId={plot.id} compact />
+                  <ContactPanel agent={agent} listingId={plot.sourceListingId ?? plot.id.slice(0, 8)} compact />
                   <div className="detail-summary-table">
                     <table>
                       <tbody>
                         <tr>
-                          <th>Phase</th>
+                          <th>Project</th>
                           <td>{plot.phase}</td>
                           <th>Size</th>
                           <td>{plot.size}</td>
                         </tr>
                         <tr>
-                          <th>Project</th>
-                          <td>{plot.project}</td>
+                          <th>Type</th>
+                          <td>{plot.propertyType}</td>
                           <th>Status</th>
                           <td>{plot.status}</td>
                         </tr>
                         <tr>
-                          <th>Block</th>
-                          <td>{plot.block}</td>
+                          <th>Location</th>
+                          <td>{plot.city}</td>
                           <th>Updated</th>
-                          <td>{plot.updatedAt}</td>
+                          <td>{plot.sourceUpdatedAt ?? plot.updatedAt}</td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                   <div className="detail-block">
-                    <h2>Plot details</h2>
+                    <h2>Listing details</h2>
                     <dl className="detail-specs compact">
                       {[
-                        ["Phase", plot.phase],
                         ["Project", plot.project],
-                        ["Block", plot.block],
+                        ["Neighborhood", plot.neighborhood],
+                        ["Property type", plot.propertyType],
                         ["Size", plot.size],
                         ["Status", plot.status],
-                        ["Updated", plot.updatedAt],
+                        ["Updated", plot.sourceUpdatedAt ?? plot.updatedAt],
                       ].filter(([, v]) => v).map(([label, value]) => (
                         <div key={label as string}>
                           <dt>{label}</dt>
@@ -319,6 +319,25 @@ export default async function ListingDetailPage({ params }: PageProps) {
                     <div className="detail-block">
                       <h2>Notes</h2>
                       <p>{plot.notes}</p>
+                    </div>
+                  )}
+                  {(plot.paymentPlan.length > 0 || plot.amenities.length > 0 || plot.terms.length > 0) && (
+                    <div className="detail-feature-grid">
+                      {plot.paymentPlan.length > 0 && (
+                        <div className="detail-list">
+                          <h3>Payment plan</h3>
+                          <ul>
+                            {plot.paymentPlan.map((item) => (
+                              <li className="payment-row" key={`${item.label}-${item.amount}`}>
+                                <span>{item.label}</span>
+                                <strong>{item.amount}</strong>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      <DetailList title="Project facilities" items={plot.amenities} />
+                      <DetailList title="Terms" items={plot.terms} />
                     </div>
                   )}
                 </div>

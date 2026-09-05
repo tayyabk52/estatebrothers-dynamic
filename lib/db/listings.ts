@@ -43,13 +43,42 @@ function listingImages(row: ListingWithMedia) {
   };
 }
 
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+function plotAttributes(value: unknown) {
+  const attributes = value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+  const paymentPlan = Array.isArray(attributes.payment_plan)
+    ? attributes.payment_plan.flatMap((item) => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return [];
+        const record = item as Record<string, unknown>;
+        return typeof record.label === "string" && typeof record.amount === "string"
+          ? [{ label: record.label, amount: record.amount }]
+          : [];
+      })
+    : [];
+  return {
+    paymentPlan,
+    amenities: stringArray(attributes.amenities),
+    terms: stringArray(attributes.terms),
+    propertyType: typeof attributes.property_type === "string" ? attributes.property_type : "Land",
+    sourceListingId: typeof attributes.source_listing_id === "string" ? attributes.source_listing_id : null,
+    sourceUpdatedAt: typeof attributes.source_updated_at === "string" ? attributes.source_updated_at : null,
+  };
+}
+
 const LISTING_SELECT = "*, listing_media(*, media_assets(*))";
 
 function rowToPlot(row: ListingWithMedia): NormalizedPlot {
   const images = listingImages(row);
+  const attributes = plotAttributes(row.attributes);
 
   return {
     id: row.id,
+    title: row.title,
     slug: row.slug,
     type: "plot",
     phase: row.phase,
@@ -62,11 +91,21 @@ function rowToPlot(row: ListingWithMedia): NormalizedPlot {
     status: row.listing_status,
     availability: row.availability ?? row.listing_status,
     noindex: row.noindex ?? false,
+    metaTitle: row.meta_title,
+    metaDescription: row.meta_description,
+    keywords: row.keywords ?? [],
     contactPersonId: row.contact_person_id,
     thumbnail: images.primary,
     gallery: images.gallery,
     ogImage: images.og,
     notes: row.summary,
+    neighborhood: row.neighborhood ?? row.phase,
+    propertyType: attributes.propertyType,
+    paymentPlan: attributes.paymentPlan,
+    amenities: attributes.amenities,
+    terms: attributes.terms,
+    sourceListingId: attributes.sourceListingId,
+    sourceUpdatedAt: attributes.sourceUpdatedAt,
     updatedAt: row.updated_at.slice(0, 10),
   };
 }
@@ -95,6 +134,9 @@ function rowToHouse(row: ListingWithMedia): NormalizedHouse {
     status: row.listing_status,
     availability: row.availability ?? row.listing_status,
     noindex: row.noindex ?? false,
+    metaTitle: row.meta_title,
+    metaDescription: row.meta_description,
+    keywords: row.keywords ?? [],
     bedrooms: row.bedrooms,
     bathrooms: row.bathrooms,
     contactPersonId: row.contact_person_id,

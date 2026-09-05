@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 const links = [
   { href: "/", label: "Home", key: "home", n: "" },
-  { href: "/buy-sell", label: "Buy/Sell", key: "buy-sell", n: "08" },
+  { href: "/buy-sell", label: "Buy/Sell", key: "buy-sell", n: "" },
   { href: "/about", label: "About", key: "about", n: "10+" },
   { href: "/updates", label: "Updates", key: "updates", n: "" },
   { href: "/contact", label: "Contact", key: "contact", n: "" },
@@ -130,7 +130,7 @@ export function Nav() {
         </div>
 
         <div className="nav-menu-foot">
-          <span>Estate Brothers · DHA Phase 6 Lahore · 4 branches</span>
+          <span>Estate Brothers · Main office · DHA Phase 6 Lahore</span>
           <Link href="/contact" className="cta" onClick={() => setOpen(false)}>
             Contact Us →
           </Link>

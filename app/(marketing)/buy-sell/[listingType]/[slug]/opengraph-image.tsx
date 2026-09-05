@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getListingBySlug } from "@/lib/db/listings";
-import type { NormalizedHouse } from "@/lib/types";
+import type { NormalizedHouse, NormalizedPlot } from "@/lib/types";
 
 export const size = {
   width: 1200,
@@ -20,7 +20,7 @@ export default async function Image({ params }: ImageProps) {
     listing?.type === "house"
       ? (listing as NormalizedHouse).title
       : listing
-        ? `${listing.phase} ${listing.size} Plot`
+        ? (listing as NormalizedPlot).title
         : "Estate Brothers Listing";
 
   return new ImageResponse(
