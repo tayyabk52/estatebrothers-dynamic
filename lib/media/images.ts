@@ -1,4 +1,8 @@
-const OPTIMIZED_HOSTS = new Set(["zucpsqjiaexxxobzwodd.supabase.co", "estatebrothers.pk"]);
+const OPTIMIZED_HOSTS = new Set([
+  "zucpsqjiaexxxobzwodd.supabase.co",
+  "estatebrothers.pk",
+  "www.estatebrothers.pk",
+]);
 
 export function canUseNextImage(src: string) {
   if (!src) return false;

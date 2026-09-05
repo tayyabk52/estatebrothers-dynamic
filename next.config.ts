@@ -43,6 +43,11 @@ const nextConfig: NextConfig = {
         hostname: "estatebrothers.pk",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "www.estatebrothers.pk",
+        pathname: "/**",
+      },
     ],
   },
   async headers() {

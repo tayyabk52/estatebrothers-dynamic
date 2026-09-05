@@ -61,9 +61,9 @@ export default async function TeamProfilePage({ params }: PageProps) {
     canonicalPath: profile.profilePath,
   });
   const breadcrumbSchema = buildBreadcrumbSchema([
-    { name: "Home", url: "https://estatebrothers.pk" },
-    { name: "About", url: "https://estatebrothers.pk/about" },
-    { name: profile.name, url: `https://estatebrothers.pk${profile.profilePath}` },
+    { name: "Home", url: "https://www.estatebrothers.pk" },
+    { name: "About", url: "https://www.estatebrothers.pk/about" },
+    { name: profile.name, url: `https://www.estatebrothers.pk${profile.profilePath}` },
   ]);
   const bodyParagraphs = paragraphs(profile.profileBody);
 

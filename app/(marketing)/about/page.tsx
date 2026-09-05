@@ -13,7 +13,7 @@ import { buildMetadata } from "@/lib/seo/metadata";
 import { buildPersonSchema } from "@/lib/seo/structured-data";
 import "@/styles/about.css";
 
-const SITE_URL = "https://estatebrothers.pk";
+const SITE_URL = "https://www.estatebrothers.pk";
 const SITE_NAME = "Estate Brothers";
 
 function cleanTitle(title?: string | null) {

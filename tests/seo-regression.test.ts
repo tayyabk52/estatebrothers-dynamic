@@ -32,7 +32,7 @@ describe("SEO Metadata Builder", () => {
 
     expect(meta.title).toEqual({ absolute: "5 Marla House in DHA Phase 6 | Estate Brothers" });
     expect(meta.description).toBe("Luxury 5 marla designer house for sale in DHA Lahore.");
-    expect(meta.alternates?.canonical).toBe("https://estatebrothers.pk/buy-sell/house/5-marla-dha-phase-6");
+    expect(meta.alternates?.canonical).toBe("https://www.estatebrothers.pk/buy-sell/house/5-marla-dha-phase-6");
   });
 
   it("handles root site title without duplicate brand suffix", () => {
@@ -42,7 +42,7 @@ describe("SEO Metadata Builder", () => {
     });
 
     expect(meta.title).toEqual({ absolute: "Estate Brothers" });
-    expect(meta.alternates?.canonical).toBe("https://estatebrothers.pk/");
+    expect(meta.alternates?.canonical).toBe("https://www.estatebrothers.pk/");
   });
 
   it("does not duplicate the brand when an admin-managed title already contains it", () => {
@@ -114,7 +114,7 @@ describe("Structured Data / JSON-LD Schemas", () => {
     expect(schema["@context"]).toBe("https://schema.org");
     expect(schema["@type"]).toBe("WebSite");
     expect(schema.name).toBe("Estate Brothers");
-    expect(schema.url).toBe("https://estatebrothers.pk");
+    expect(schema.url).toBe("https://www.estatebrothers.pk");
     // Ensure SearchAction is NOT present (deprecated globally by Google Nov 2024)
     expect((schema as Record<string, unknown>).potentialAction).toBeUndefined();
   });
@@ -124,7 +124,7 @@ describe("Structured Data / JSON-LD Schemas", () => {
 
     expect(schema["@type"]).toBe("Organization");
     expect(schema.name).toBe("Estate Brothers");
-    expect(schema.url).toBe("https://estatebrothers.pk");
+    expect(schema.url).toBe("https://www.estatebrothers.pk");
     expect(schema.contactPoint).toBeDefined();
     expect(schema.contactPoint["@type"]).toBe("ContactPoint");
   });
@@ -151,9 +151,9 @@ describe("Structured Data / JSON-LD Schemas", () => {
 
   it("generates valid BreadcrumbList schema matching 1-based hierarchy", () => {
     const items = [
-      { name: "Home", url: "https://estatebrothers.pk" },
-      { name: "Buy/Sell", url: "https://estatebrothers.pk/buy-sell" },
-      { name: "1 Kanal House DHA Phase 5", url: "https://estatebrothers.pk/buy-sell/house/1-kanal-dha-phase-5" },
+      { name: "Home", url: "https://www.estatebrothers.pk" },
+      { name: "Buy/Sell", url: "https://www.estatebrothers.pk/buy-sell" },
+      { name: "1 Kanal House DHA Phase 5", url: "https://www.estatebrothers.pk/buy-sell/house/1-kanal-dha-phase-5" },
     ];
 
     const schema = buildBreadcrumbSchema(items);
@@ -164,13 +164,13 @@ describe("Structured Data / JSON-LD Schemas", () => {
       "@type": "ListItem",
       position: 1,
       name: "Home",
-      item: "https://estatebrothers.pk",
+      item: "https://www.estatebrothers.pk",
     });
     expect(schema.itemListElement[2]).toEqual({
       "@type": "ListItem",
       position: 3,
       name: "1 Kanal House DHA Phase 5",
-      item: "https://estatebrothers.pk/buy-sell/house/1-kanal-dha-phase-5",
+      item: "https://www.estatebrothers.pk/buy-sell/house/1-kanal-dha-phase-5",
     });
   });
 
@@ -221,7 +221,7 @@ describe("Structured Data / JSON-LD Schemas", () => {
 
     expect(schema["@type"]).toBe("RealEstateListing");
     expect(schema.name).toBe("10 Marla Brand New House");
-    expect(schema.url).toBe("https://estatebrothers.pk/buy-sell/house/10-marla-phase-7");
+    expect(schema.url).toBe("https://www.estatebrothers.pk/buy-sell/house/10-marla-phase-7");
     expect(schema.offers).toEqual({
       "@type": "Offer",
       price: 55000000,
@@ -255,7 +255,7 @@ describe("Robots Configuration", () => {
   it("allows public crawling while protecting admin, dashboard, and API routes", () => {
     const config = robots();
 
-    expect(config.sitemap).toBe("https://estatebrothers.pk/sitemap.xml");
+    expect(config.sitemap).toBe("https://www.estatebrothers.pk/sitemap.xml");
 
     const rules = Array.isArray(config.rules) ? config.rules : [config.rules];
     const generalRule = rules.find((r) => r.userAgent === "*");
@@ -273,7 +273,7 @@ describe("Admin-managed media rendering safety", () => {
   it("allows Next image optimization for local, Supabase, and production-domain media", () => {
     expect(canUseNextImage("/images/example.jpg")).toBe(true);
     expect(canUseNextImage("https://zucpsqjiaexxxobzwodd.supabase.co/storage/v1/object/public/site-assets/example.jpg")).toBe(true);
-    expect(canUseNextImage("https://estatebrothers.pk/og-default.jpg")).toBe(true);
+    expect(canUseNextImage("https://www.estatebrothers.pk/og-default.jpg")).toBe(true);
   });
 
   it("generates valid ProfilePage schema with Person mainEntity", () => {
@@ -289,15 +289,15 @@ describe("Admin-managed media rendering safety", () => {
     });
 
     expect(schema["@type"]).toBe("ProfilePage");
-    expect(schema.url).toBe("https://estatebrothers.pk/team/abdul-rehman");
+    expect(schema.url).toBe("https://www.estatebrothers.pk/team/abdul-rehman");
     expect(schema.mainEntity["@type"]).toBe("Person");
     expect(schema.mainEntity.name).toBe("Abdul Rehman");
     expect(schema.mainEntity.jobTitle).toBe("Property Consultant");
-    expect(schema.mainEntity.image).toBe("https://estatebrothers.pk/images/team/abdul.jpg");
+    expect(schema.mainEntity.image).toBe("https://www.estatebrothers.pk/images/team/abdul.jpg");
     expect(schema.mainEntity.worksFor).toEqual({
       "@type": "Organization",
       name: "Estate Brothers",
-      url: "https://estatebrothers.pk",
+      url: "https://www.estatebrothers.pk",
     });
   });
 

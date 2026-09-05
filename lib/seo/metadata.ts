@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const SITE_URL = "https://estatebrothers.pk";
+const SITE_URL = "https://www.estatebrothers.pk";
 const SITE_NAME = "Estate Brothers";
 const DEFAULT_DESCRIPTION =
   "Buy, sell, and invest in property across Lahore, Karachi, and Islamabad with Estate Brothers - Pakistan's trusted real estate team.";

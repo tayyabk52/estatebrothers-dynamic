@@ -43,14 +43,14 @@ const googleVerification = process.env.NEXT_PUBLIC_GSC_VERIFICATION;
 const bingVerification = process.env.NEXT_PUBLIC_BING_VERIFICATION;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://estatebrothers.pk"),
+  metadataBase: new URL("https://www.estatebrothers.pk"),
   title: {
     default: "Estate Brothers",
     template: "%s | Estate Brothers",
   },
   description:
     "Buy, sell, and invest in property across Lahore, Karachi, and Islamabad with Estate Brothers - Pakistan's trusted real estate team.",
-  alternates: { canonical: "https://estatebrothers.pk" },
+  alternates: { canonical: "https://www.estatebrothers.pk" },
   // Verification tokens: set env vars after obtaining them from Google Search Console and Bing Webmaster Tools.
   verification: {
     ...(googleVerification ? { google: googleVerification } : {}),

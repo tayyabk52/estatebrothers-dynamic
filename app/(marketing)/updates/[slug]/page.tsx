@@ -72,11 +72,11 @@ export default async function UpdateDetailPage({ params }: PageProps) {
     articleSection: update.articleSection ?? undefined,
   });
   const breadcrumbSchema = buildBreadcrumbSchema([
-    { name: "Home", url: "https://estatebrothers.pk" },
-    { name: "Updates", url: "https://estatebrothers.pk/updates" },
+    { name: "Home", url: "https://www.estatebrothers.pk" },
+    { name: "Updates", url: "https://www.estatebrothers.pk/updates" },
     {
       name: update.title,
-      url: `https://estatebrothers.pk${update.canonicalPath ?? `/updates/${update.slug}`}`,
+      url: `https://www.estatebrothers.pk${update.canonicalPath ?? `/updates/${update.slug}`}`,
     },
   ]);
 

@@ -101,8 +101,8 @@ export default async function CleanSeoLandingPage({ params }: PageProps) {
   const heroAlt = landingPage.hero_media?.alt_text || landingPage.heading || landingPage.title;
   const structuredData = [
     buildBreadcrumbSchema([
-      { name: "Home", url: "https://estatebrothers.pk" },
-      { name: landingPage.title, url: `https://estatebrothers.pk${landingPage.canonical_path}` },
+      { name: "Home", url: "https://www.estatebrothers.pk" },
+      { name: landingPage.title, url: `https://www.estatebrothers.pk${landingPage.canonical_path}` },
     ]),
     buildItemListSchema(listings.map((listing) => ({
       slug: listing.slug,

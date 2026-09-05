@@ -34,8 +34,8 @@ export default async function BuySellPage() {
   );
 
   const breadcrumbSchema = buildBreadcrumbSchema([
-    { name: "Home", url: "https://estatebrothers.pk" },
-    { name: "Buy/Sell", url: "https://estatebrothers.pk/buy-sell" },
+    { name: "Home", url: "https://www.estatebrothers.pk" },
+    { name: "Buy/Sell", url: "https://www.estatebrothers.pk/buy-sell" },
   ]);
 
   return (

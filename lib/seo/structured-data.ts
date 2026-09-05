@@ -1,4 +1,4 @@
-const SITE_URL = "https://estatebrothers.pk";
+const SITE_URL = "https://www.estatebrothers.pk";
 const SITE_NAME = "Estate Brothers";
 const BUSINESS_DESCRIPTION =
   "Estate Brothers is a Lahore real estate agency helping clients buy, sell, and invest in residential and commercial property across DHA and wider Pakistan.";

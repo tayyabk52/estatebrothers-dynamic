@@ -203,7 +203,7 @@ export function calculateListingSeoQuality(input: ListingSeoInput): SeoQualityRe
   else if (score >= 70) grade = "good";
   else if (score >= 50) grade = "needs_work";
 
-  const serpUrl = `https://estatebrothers.pk/buy-sell/${type}/${slug || "property-slug"}`;
+  const serpUrl = `https://www.estatebrothers.pk/buy-sell/${type}/${slug || "property-slug"}`;
 
   return {
     score,
@@ -297,7 +297,7 @@ export function calculateUpdateSeoQuality(input: UpdateSeoInput): SeoQualityRepo
   else if (score >= 70) grade = "good";
   else if (score >= 50) grade = "needs_work";
 
-  const serpUrl = `https://estatebrothers.pk/updates/${slug || "article-slug"}`;
+  const serpUrl = `https://www.estatebrothers.pk/updates/${slug || "article-slug"}`;
 
   return {
     score,

@@ -8,7 +8,7 @@ import {
 } from "@/lib/db/seo";
 import { isCleanSeoLandingPath } from "@/lib/seo/landing-routes";
 
-const SITE_URL = "https://estatebrothers.pk";
+const SITE_URL = "https://www.estatebrothers.pk";
 const ALWAYS_PUBLIC_ROUTES = {
   "/buy-sell": { changeFrequency: "daily", priority: 0.9 },
   "/updates": { changeFrequency: "weekly", priority: 0.7 },

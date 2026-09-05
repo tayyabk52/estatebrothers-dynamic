@@ -13,6 +13,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: "/",
       },
     ],
-    sitemap: "https://estatebrothers.pk/sitemap.xml",
+    sitemap: "https://www.estatebrothers.pk/sitemap.xml",
   };
 }
