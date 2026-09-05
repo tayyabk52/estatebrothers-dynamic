@@ -36,7 +36,7 @@
 .pillar p{font-size:14px;color:var(--graphite);line-height:1.6;margin:0;max-width:34ch}
 
 .about-offices{background:var(--bone);padding-bottom:92px}
-.office-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--gutter)}
+.office-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--gutter);max-width:920px}
 .office-card{border-top:1px solid var(--rule-strong);display:grid;grid-template-columns:1.08fr .92fr;min-height:380px;background:var(--paper)}
 .office-card-text-only{grid-template-columns:1fr}
 .office-photo{position:relative;overflow:hidden;background:var(--ink)}

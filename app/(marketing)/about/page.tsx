@@ -16,6 +16,19 @@ import "@/styles/about.css";
 const SITE_URL = "https://www.estatebrothers.pk";
 const SITE_NAME = "Estate Brothers";
 
+function AboutHeroHeading({ text }: { text: string }) {
+  const emphasis = "trust, market knowledge, and results.";
+  const start = text.toLowerCase().indexOf(emphasis);
+  if (start < 0) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, start)}
+      <span className="serif-i">{text.slice(start, start + emphasis.length)}</span>
+      {text.slice(start + emphasis.length)}
+    </>
+  );
+}
+
 function cleanTitle(title?: string | null) {
   const normalized = (title || "About Estate Brothers").trim();
   return normalized.replace(/\s+\|\s+Estate Brothers$/i, "");
@@ -378,6 +391,8 @@ export default async function AboutPage() {
 
   const heroImage = mediaUrl(page.hero_media);
   const sections = page.page_sections ?? [];
+  const chiefExecutive =
+    teamMembers.find((member) => member.name.toLowerCase().includes("tajamal")) ?? teamMembers[0];
   const proofSection = sections.find((section) => section.section_key === "about-proof");
   const remainingSections = sections.filter((section) => section.section_key !== "about-proof");
   const sectionSchemas = aboutStructuredData(sections);
@@ -411,7 +426,7 @@ export default async function AboutPage() {
         <div className="wrap">
           <div className="about-hero-copy reveal">
             <div className="eyebrow">{page.title}</div>
-            <h1>{page.heading ?? page.title}</h1>
+            <h1><AboutHeroHeading text={page.heading ?? page.title} /></h1>
             {page.intro && <p>{page.intro}</p>}
           </div>
 
@@ -425,6 +440,12 @@ export default async function AboutPage() {
                 priority
                 sizes="(max-width:768px) 100vw, 600px"
               />
+              {chiefExecutive && (
+                <div className="about-media-caption">
+                  <span className="mono">{chiefExecutive.role ?? "Chief Executive Officer"}</span>
+                  <strong>{chiefExecutive.name}</strong>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -438,7 +459,8 @@ export default async function AboutPage() {
             <header className="about-section-head reveal">
               <div className="eyebrow">Office locations</div>
               <div>
-                <h2 id="about-offices-title">Office locations published by Estate Brothers.</h2>
+                <h2 id="about-offices-title">Real offices, visible presence, and a team clients can visit.</h2>
+                <p>Estate Brothers operates from DHA Phase 6 Lahore for private meetings, client advisory, documentation, and site coordination.</p>
               </div>
             </header>
             <div className="office-grid">
@@ -476,7 +498,8 @@ export default async function AboutPage() {
           <header className="about-section-head reveal">
             <div className="eyebrow">Our team</div>
             <div>
-              <h2 id="about-team-title">Published Estate Brothers team members.</h2>
+              <h2 id="about-team-title">The people clients speak with, meet, and trust through the process.</h2>
+              <p>A working team across leadership, branch management, sales direction, and client advisory.</p>
             </div>
           </header>
         </div>
