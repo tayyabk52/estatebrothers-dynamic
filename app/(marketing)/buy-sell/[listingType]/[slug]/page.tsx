@@ -336,7 +336,7 @@ export default async function ListingDetailPage({ params }: PageProps) {
                           </ul>
                         </div>
                       )}
-                      <DetailList title="Project facilities" items={plot.amenities} />
+                      <DetailList title="Amenities" items={plot.amenities} />
                       <DetailList title="Terms" items={plot.terms} />
                     </div>
                   )}
