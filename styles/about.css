@@ -36,15 +36,15 @@
 .pillar p{font-size:14px;color:var(--graphite);line-height:1.6;margin:0;max-width:34ch}
 
 .about-offices{background:var(--bone);padding-bottom:92px}
-.office-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--gutter);max-width:920px}
-.office-card{border-top:1px solid var(--rule-strong);display:grid;grid-template-columns:1.08fr .92fr;min-height:380px;background:var(--paper)}
-.office-card-text-only{grid-template-columns:1fr}
-.office-photo{position:relative;overflow:hidden;background:var(--ink)}
+.office-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gutter)}
+.office-card{border-top:1px solid var(--rule-strong);display:grid;grid-template-rows:auto 1fr;min-width:0;background:var(--paper)}
+.office-card-text-only{grid-template-rows:1fr}
+.office-photo{position:relative;overflow:hidden;background:var(--ink);aspect-ratio:16/9}
 .office-photo img{width:100%;height:100%;object-fit:cover;object-position:58% 50%;filter:saturate(.98) contrast(1.02)}
 .office-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 48%,rgba(0,0,0,.48) 100%);pointer-events:none}
 .office-status{position:absolute;left:18px;bottom:16px;z-index:1;font-size:var(--t-eyebrow);letter-spacing:.18em;text-transform:uppercase;color:rgba(250,246,236,.78);font-weight:500;text-shadow:0 1px 12px rgba(0,0,0,.45)}
-.office-copy{padding:28px;display:flex;flex-direction:column;justify-content:space-between;gap:28px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
-.office-copy h3{font-family:var(--display);font-size:32px;font-weight:500;letter-spacing:-.03em;line-height:1.05;margin:0;max-width:9ch}
+.office-copy{padding:22px 24px 24px;display:flex;flex-direction:column;justify-content:space-between;gap:18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);border-left:1px solid var(--rule)}
+.office-copy h3{font-family:var(--display);font-size:28px;font-weight:500;letter-spacing:-.03em;line-height:1.05;margin:0;max-width:none}
 .office-copy p{font-size:14px;color:var(--graphite);line-height:1.62;margin:0;max-width:34ch}
 .office-copy .mono{font-size:11px;color:var(--ink);line-height:1.6}
 
