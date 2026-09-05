@@ -18,6 +18,7 @@ const navLinks = [
   { href: "/admin/offices", label: "Offices" },
   { href: "/admin/pages", label: "Pages" },
   { href: "/admin/seo-landing-pages", label: "SEO landing pages" },
+  { href: "/admin/contact-submissions", label: "Contact inquiries" },
   { href: "/admin/site", label: "Site settings" },
 ];
 

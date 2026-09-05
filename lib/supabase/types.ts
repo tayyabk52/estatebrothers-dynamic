@@ -41,6 +41,51 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_submissions: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string
+          id: string
+          intent: string
+          message: string | null
+          name: string
+          phone: string | null
+          reference: string
+          source_path: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          intent?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          reference: string
+          source_path?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          intent?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          reference?: string
+          source_path?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       content_authors: {
         Row: {
           bio: string | null
@@ -1649,3 +1694,4 @@ export type ListingRow = Database["public"]["Tables"]["real_estate_listings"]["R
 export type UpdateRow = Database["public"]["Tables"]["updates"]["Row"]
 export type TeamMemberRow = Database["public"]["Tables"]["team_members"]["Row"]
 export type SiteSettingsRow = Database["public"]["Tables"]["site_settings"]["Row"]
+export type ContactSubmissionRow = Database["public"]["Tables"]["contact_submissions"]["Row"]

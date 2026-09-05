@@ -12,7 +12,7 @@ export async function generateMetadata() {
     description: page?.meta_description,
     canonicalPath: "/contact",
     image: page?.og_image ?? mediaUrl(page?.hero_media) ?? "/og-default.jpg",
-    noIndex: page?.noindex ?? true,
+    noIndex: page?.noindex ?? false,
     keywords: page?.keywords ?? ["contact real estate agent Lahore", "property inquiry Lahore"],
   });
 }
@@ -42,8 +42,11 @@ export default async function ContactPage() {
       )}
       <ContactClient
         businessName={settings?.business_name ?? "Estate Brothers"}
+        heading={page.heading}
+        intro={page.intro}
         email={settings?.email}
         phone={settings?.phone}
+        whatsapp={settings?.whatsapp}
         instagram={socialLinks.instagram}
         officeItems={offices.map((office) => ({
           id: office.id,
