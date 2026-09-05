@@ -396,20 +396,21 @@ export default async function AboutPage() {
   const proofSection = sections.find((section) => section.section_key === "about-proof");
   const remainingSections = sections.filter((section) => section.section_key !== "about-proof");
   const sectionSchemas = aboutStructuredData(sections);
-  const personSchemas = teamMembers.map((member) =>
-    buildPersonSchema({
+  const personSchemas = teamMembers.map((member) => ({
+    key: member.id,
+    schema: buildPersonSchema({
       name: member.name,
       jobTitle: member.role ?? undefined,
       phone: member.phone ?? undefined,
       email: member.email ?? undefined,
-    })
-  );
+    }),
+  }));
 
   return (
     <main>
-      {personSchemas.map((schema) => (
+      {personSchemas.map(({ key, schema }) => (
         <script
-          key={schema.name}
+          key={key}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
