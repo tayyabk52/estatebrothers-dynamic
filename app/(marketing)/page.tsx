@@ -6,6 +6,7 @@ import { PopularSeoLinks } from "@/components/seo/PopularSeoLinks";
 import { PropertyRow } from "@/components/ui/PropertyRow";
 import { SafeMediaImage } from "@/components/ui/SafeMediaImage";
 import { Testimonial } from "@/components/ui/Testimonial";
+import { HomeProjectCard } from "@/components/ui/HomeProjectCard";
 import {
   getHomeSection,
   normalizeFeaturedListings,
@@ -23,6 +24,18 @@ import { getPublishedTeamMembers } from "@/lib/db/team";
 import { buildMetadata } from "@/lib/seo/metadata";
 import type { NormalizedListing } from "@/lib/types";
 import "@/styles/home.css";
+
+function EmphasizedHeading({ text, emphasis }: { text: string; emphasis: string }) {
+  const start = text.toLowerCase().indexOf(emphasis.toLowerCase());
+  if (start < 0) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, start)}
+      <span className="serif-i">{text.slice(start, start + emphasis.length)}</span>
+      {text.slice(start + emphasis.length)}
+    </>
+  );
+}
 
 export async function generateMetadata() {
   const page = await getPublishedPage("/");
@@ -59,6 +72,8 @@ function Hero({
   stats: ReturnType<typeof normalizeHomeStats>;
 }) {
   const heroImage = mediaUrl(page.hero_media);
+  const heroHeading = page.heading ?? page.title;
+  const originalHeroHeading = heroHeading.toLowerCase() === "estate brothers real estate, built on trust.";
   return (
     <section className="hero">
       <div className="hero-stage">
@@ -80,7 +95,15 @@ function Hero({
             <span>{page.title}</span>
           </div>
           <h1>
-            {page.heading ?? page.title}
+            {originalHeroHeading ? (
+              <>
+                Estate Brothers
+                <br />
+                real estate,
+                <br />
+                <span className="serif-i">built on</span> trust.
+              </>
+            ) : heroHeading}
           </h1>
           <div className="hero-side">
             {page.intro && <p className="lede">{page.intro}</p>}
@@ -200,7 +223,7 @@ function FeaturedProjects({
   if (!projects.length) return null;
 
   return (
-    <section className="section home-project-showcase" id="featured-projects">
+    <section className="section project-showcase" id="featured-projects">
       <div className="wrap">
         <header className="section-hd reveal">
           <div className="label">
@@ -208,64 +231,22 @@ function FeaturedProjects({
             {section?.subheading && <div className="mono section-date">{section.subheading}</div>}
           </div>
           <div className="title">
-            <h2>{section?.heading ?? "Project areas Estate Brothers is actively tracking."}</h2>
+            <h2>
+              <EmphasizedHeading
+                text={section?.heading ?? "Project areas Estate Brothers is actively tracking."}
+                emphasis="by Estate Brothers."
+              />
+            </h2>
           </div>
           <div className="aux">
             <Link href="/buy-sell">View all listings -&gt;</Link>
           </div>
         </header>
 
-        {section?.body && <p className="home-project-intro">{section.body}</p>}
-
-        <div className="home-project-grid">
+        {section?.body && <p className="project-intro">{section.body}</p>}
+        <div className="project-grid">
           {projects.map((project, index) => (
-            <article className="home-project-card reveal" key={project.id}>
-              <Link href={project.href} aria-label={`View Estate Brothers listings for ${project.title}`}>
-                <span className="home-project-number">{String(index + 1).padStart(2, "0")}</span>
-                <span className="home-project-media">
-                  {project.imageUrl ? (
-                    <SafeMediaImage
-                      src={project.imageUrl}
-                      alt={project.alt}
-                      width={720}
-                      height={520}
-                      loading="lazy"
-                      sizes="(max-width: 900px) 100vw, 50vw"
-                    />
-                  ) : (
-                    <span className="home-project-placeholder" aria-hidden="true">
-                      EB
-                    </span>
-                  )}
-                </span>
-                <span className="home-project-copy">
-                  <span className="mono">{project.label}</span>
-                  <strong>{project.title}</strong>
-                  <span>{project.location}</span>
-                  <p>{project.description}</p>
-                  {project.gallery.length > 1 && (
-                    <>
-                      <span className="home-project-thumbs" aria-label={`${project.title} image gallery preview`}>
-                        {project.gallery.slice(0, 4).map((image) => (
-                          <span key={image.id}>
-                            <SafeMediaImage
-                              src={image.imageUrl}
-                              alt=""
-                              width={96}
-                              height={72}
-                              loading="lazy"
-                              sizes="96px"
-                            />
-                          </span>
-                        ))}
-                      </span>
-                      <small className="home-project-gallery-count">{project.gallery.length} project images</small>
-                    </>
-                  )}
-                  <em>View matching inventory -&gt;</em>
-                </span>
-              </Link>
-            </article>
+            <HomeProjectCard project={project} index={index} key={project.id} />
           ))}
         </div>
       </div>
@@ -301,7 +282,12 @@ function Narrative({
         </div>
         <div className="col-r reveal">
           <div className="eyebrow">{section?.eyebrow ?? "Leadership"}</div>
-          <h2>{section?.heading ?? "Built on trust, expertise, and results."}</h2>
+          <h2>
+            <EmphasizedHeading
+              text={section?.heading ?? "Built on trust, expertise, and results."}
+              emphasis="Led by Tajamal Hussain."
+            />
+          </h2>
           {section?.subheading && <p>{section.subheading}</p>}
           {section?.body && <p className="narrative-meta">{section.body}</p>}
           <div className="signature">
@@ -332,29 +318,34 @@ function HomeGallery({
   return (
     <section className="life-gallery" aria-labelledby="home-gallery-title">
       <div className="wrap">
-        <header className="life-gallery-head reveal">
-          <div>
+        <header className="section-hd reveal">
+          <div className="label">
             <div className="eyebrow">{section?.eyebrow ?? "Gallery"}</div>
-            <h2 id="home-gallery-title">{section?.heading ?? "Life around Estate Brothers."}</h2>
+            {section?.subheading && <div className="mono section-date">{section.subheading}</div>}
           </div>
-          {section?.subheading && <p>{section.subheading}</p>}
+          <div className="title">
+            <h2 id="home-gallery-title">
+              <EmphasizedHeading
+                text={section?.heading ?? "Life around Estate Brothers."}
+                emphasis="Estate Brothers"
+              />
+            </h2>
+          </div>
+          <div className="aux"><Link href="/updates">View updates</Link></div>
         </header>
-        <div className="life-gallery-grid">
-          {items.map((item) => (
-            <figure className="life-gallery-card reveal" key={item.id}>
+      </div>
+      <div className="gallery-rail" aria-label="Estate Brothers event gallery">
+        <div className="gallery-track">
+          {[...items, ...items].map((item, index) => (
+            <figure className="gallery-frame" key={`${item.id}-${index}`}>
               <SafeMediaImage
                 src={item.imageUrl}
                 alt={item.alt}
                 width={720}
                 height={520}
                 loading="lazy"
-                sizes="(max-width: 900px) 100vw, 33vw"
+                sizes="(max-width: 900px) 260px, 360px"
               />
-              <figcaption>
-                <strong>{item.title}</strong>
-                {item.caption && <span>{item.caption}</span>}
-                {item.href && <Link href={item.href}>View details -&gt;</Link>}
-              </figcaption>
             </figure>
           ))}
         </div>
@@ -375,20 +366,27 @@ function HomeAwards({
   return (
     <section className="home-awards" aria-labelledby="home-awards-title">
       <div className="wrap">
-        <header className="home-awards-head reveal">
-          <div>
+        <header className="section-hd reveal">
+          <div className="label">
             <div className="eyebrow">{section?.eyebrow ?? "Awards & recognition"}</div>
-            <h2 id="home-awards-title">{section?.heading ?? "Recognition that reflects professional trust."}</h2>
+            {section?.subheading && <div className="mono section-date">{section.subheading}</div>}
           </div>
-          <div>
-            {section?.subheading && <p>{section.subheading}</p>}
-            <Link href="/about">View company profile -&gt;</Link>
+          <div className="title">
+            <h2 id="home-awards-title">
+              <EmphasizedHeading
+                text={section?.heading ?? "Recognition that reflects professional trust."}
+                emphasis="professional trust."
+              />
+            </h2>
           </div>
+          <div className="aux"><Link href="/updates">View all</Link></div>
         </header>
-        <div className="home-awards-rail">
-          {awards.map((award) => (
-            <article className="home-award-card reveal" key={award.id}>
-              <div className="home-award-media">
+      </div>
+      <div className="awards-rail" aria-label="Estate Brothers awards and certificates">
+        <div className="awards-track">
+          {[...awards, ...awards].map((award, index) => (
+            <article className="home-award-card" key={`${award.id}-${index}`}>
+              <div className="home-award-image">
                 {award.imageUrl ? (
                   <SafeMediaImage
                     src={award.imageUrl}
@@ -396,18 +394,16 @@ function HomeAwards({
                     width={420}
                     height={320}
                     loading="lazy"
-                    sizes="(max-width: 900px) 80vw, 240px"
+                    sizes="(max-width: 900px) 220px, 270px"
                   />
                 ) : (
-                  <span aria-hidden="true">EB</span>
+                  <span aria-hidden="true">{award.category}</span>
                 )}
+                {award.imageUrl && <span>{award.category}</span>}
               </div>
               <div className="home-award-copy">
-                <span className="mono">{award.category}</span>
+                <span className="mono">{award.issuer || award.category}</span>
                 <h3>{award.title}</h3>
-                {award.issuer && <p>{award.issuer}</p>}
-                {award.description && <small>{award.description}</small>}
-                {award.referenceUrl && <Link href={award.referenceUrl}>View reference -&gt;</Link>}
               </div>
             </article>
           ))}

@@ -33,7 +33,7 @@ export function Testimonial({
   const testimonial = testimonials[index] ?? testimonials[0];
 
   return (
-    <section className="testimonial" style={{ minHeight: "450px" }}>
+    <section className="testimonial">
       <div className="wrap">
         {(eyebrow || heading || intro) && (
           <header className="testimonial-head">

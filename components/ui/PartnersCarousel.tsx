@@ -22,7 +22,7 @@ export function PartnersCarousel({
   const carouselItems = [...partners, ...partners];
 
   return (
-    <section className="partners-section reveal" aria-labelledby="partners-title" style={{ minHeight: "220px" }}>
+    <section className="partners-section reveal" aria-labelledby="partners-title">
       <div className="partners-head wrap">
         <div>
           {eyebrow && <div className="eyebrow">{eyebrow}</div>}
