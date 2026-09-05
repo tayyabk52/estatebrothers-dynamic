@@ -2,11 +2,10 @@ import { useEffect } from "react";
 
 export function useReveal() {
   useEffect(() => {
-    // This hook lives in the shared marketing layout while route content can
-    // still be streaming and hydrating. Starting the observer immediately can
-    // add `.in` to server HTML before React hydrates that route segment.
-    // Wait for the document load boundary so React receives the exact server
-    // markup it expects, then begin the purely visual reveal behavior.
+    // Route content can still be streaming after this shared layout hydrates.
+    // Animate through the Web Animations API instead of changing class/style
+    // attributes owned by React, so late segments keep identical hydration
+    // markup while retaining the reveal effect.
     let started = false;
     let cleanup: (() => void) | undefined;
 
@@ -18,7 +17,19 @@ export function useReveal() {
       const io = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting) entry.target.classList.add("in");
+            if (!entry.isIntersecting) return;
+            entry.target.animate(
+              [
+                { opacity: 0, transform: "translateY(14px)" },
+                { opacity: 1, transform: "translateY(0)" },
+              ],
+              {
+                duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1 : 900,
+                easing: "ease",
+                fill: "forwards",
+              },
+            );
+            io.unobserve(entry.target);
           });
         },
         { threshold: 0.08 },
