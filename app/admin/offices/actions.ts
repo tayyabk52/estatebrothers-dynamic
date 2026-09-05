@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { assertAdmin } from "@/lib/admin/auth";
 import { createExternalMediaAsset, createUploadedMediaAsset } from "@/lib/admin/media";
@@ -111,7 +111,7 @@ export async function deleteOffice(id: string) {
 }
 
 function revalidateOfficePaths() {
-  revalidateTag("offices", "max");
+  updateTag("offices");
   revalidatePath("/admin/offices");
   revalidatePath("/about");
   revalidatePath("/contact");

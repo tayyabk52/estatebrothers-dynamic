@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { OfficeImageField } from "@/components/admin/OfficeImageField";
 import { mediaUrl, type OfficeLocationWithMedia } from "@/lib/db/site";
 
 export function OfficeForm({
@@ -54,7 +55,7 @@ export function OfficeForm({
         <h2>Office image</h2>
         <input type="hidden" name="existing_image_media_id" value={office?.image_media_id ?? ""} />
         <input type="hidden" name="existing_image_url" value={currentImage ?? ""} />
-        <label className="admin-field">Upload image<input type="file" name="office_image" accept="image/*" /></label>
+        <OfficeImageField currentSrc={currentImage} alt={office?.name ?? "Office"} />
         <label className="admin-field">Image URL<input name="image_url" defaultValue={currentImage ?? ""} placeholder="/images/... or https://..." /></label>
       </div>
 

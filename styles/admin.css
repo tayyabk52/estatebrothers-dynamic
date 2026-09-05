@@ -1167,6 +1167,37 @@
   padding: 10px 12px 12px;
 }
 
+.admin-office-image-field {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.admin-file-picker {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-file-picker-input {
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+}
+
+.admin-file-picker-name {
+  color: var(--admin-muted, #77746a);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.admin-office-image-field .admin-field-help {
+  margin: 0;
+}
+
 .admin-existing-media {
   margin-top: 18px;
 }
