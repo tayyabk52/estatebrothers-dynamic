@@ -85,7 +85,7 @@ export async function createOffice(formData: FormData) {
   }
 
   revalidateOfficePaths();
-  redirect(`/admin/offices/${data.id}/edit`);
+  redirect(`/admin/offices/${data.id}/edit?result=saved`);
 }
 
 export async function updateOffice(id: string, formData: FormData) {
@@ -97,7 +97,7 @@ export async function updateOffice(id: string, formData: FormData) {
   if (error) throw new Error(error.message);
 
   revalidateOfficePaths();
-  redirect("/admin/offices");
+  redirect("/admin/offices?result=saved");
 }
 
 export async function deleteOffice(id: string) {
@@ -107,7 +107,7 @@ export async function deleteOffice(id: string) {
   if (error) throw new Error(error.message);
 
   revalidateOfficePaths();
-  redirect("/admin/offices");
+  redirect("/admin/offices?result=saved");
 }
 
 function revalidateOfficePaths() {

@@ -1,3 +1,4 @@
+import { AdminForm } from "@/components/admin/AdminForm";
 import Link from "next/link";
 import { DeleteButton } from "@/components/ui/DeleteButton";
 import { mediaUrl, type PageBlockWithMedia, type PageSectionWithBlocks, type PageWithSections } from "@/lib/db/site";
@@ -126,7 +127,7 @@ export function PageEditorWorkspace({
   return (
     <div className="admin-editor-grid">
       <div className="admin-editor-main">
-        <form action={pageAction} className="admin-form">
+        <AdminForm action={pageAction} className="admin-form">
           <AdminAccordion
             title="Page identity"
             subtitle="Route, title, and the copy used by the main page hero."
@@ -196,7 +197,7 @@ export function PageEditorWorkspace({
             <Link href="/admin/pages" className="admin-btn admin-btn-ghost">Cancel</Link>
             <button type="submit" className="admin-btn admin-btn-primary">Save page settings</button>
           </div>
-        </form>
+        </AdminForm>
 
         <div className="admin-editor-section-head">
           <div>
@@ -284,7 +285,7 @@ function AddSectionForm({ page }: { page: PageWithSections }) {
         </span>
         <span className="admin-accordion-meta"><span className="admin-pill">New section</span></span>
       </summary>
-      <form action={action} className="admin-section-form">
+      <AdminForm action={action} className="admin-section-form">
         <input type="hidden" name="existing_section_media_id" value="" />
         <div className="admin-field-row">
           <label className="admin-field">
@@ -328,7 +329,7 @@ function AddSectionForm({ page }: { page: PageWithSections }) {
             {isHome && !availableHomeSections.length ? "All homepage sections added" : "Add section"}
           </button>
         </div>
-      </form>
+      </AdminForm>
     </details>
   );
 }
@@ -375,7 +376,7 @@ function PageSectionEditor({
           )}
         </p>
       )}
-      <form action={sectionAction} className="admin-section-form">
+      <AdminForm action={sectionAction} className="admin-section-form">
         <input type="hidden" name="page_id" value={page.id} />
         <input type="hidden" name="section_key" value={section.section_key} />
         <input type="hidden" name="existing_section_media_id" value={section.media_id ?? ""} />
@@ -415,7 +416,7 @@ function PageSectionEditor({
         <div className="admin-form-actions">
           <button type="submit" className="admin-btn admin-btn-primary">Save section</button>
         </div>
-      </form>
+      </AdminForm>
 
       {blocks.length > 0 && (
         <PageBlockTable page={page} section={section} blocks={blocks} listings={listings} />
@@ -452,7 +453,7 @@ function AddBlockForm({
         <span>{nextSort}</span>
         <span className="admin-btn admin-btn-sm">Add</span>
       </summary>
-      <form action={action} className="admin-block-edit-form">
+      <AdminForm action={action} className="admin-block-edit-form">
         <input type="hidden" name="section_key" value={section.section_key} />
         <input type="hidden" name="existing_block_media_id" value="" />
         <label className="admin-field">Block key<input name="block_key" placeholder="new-block-key" /></label>
@@ -495,7 +496,7 @@ function AddBlockForm({
         <div className="admin-form-actions">
           <button type="submit" className="admin-btn admin-btn-primary">Add block</button>
         </div>
-      </form>
+      </AdminForm>
 
       <div className="admin-destructive-row">
         <DeleteButton
@@ -643,7 +644,7 @@ function PageBlockEditor({
         <span className="admin-btn admin-btn-sm">Edit</span>
       </summary>
 
-      <form action={blockAction} className="admin-block-edit-form">
+      <AdminForm action={blockAction} className="admin-block-edit-form">
         <input type="hidden" name="section_key" value={section.section_key} />
         <input type="hidden" name="block_key" value={block.block_key ?? ""} />
         <input type="hidden" name="existing_block_media_id" value={block.media_id ?? ""} />
@@ -687,7 +688,7 @@ function PageBlockEditor({
         <div className="admin-form-actions">
           <button type="submit" className="admin-btn admin-btn-primary">Save block</button>
         </div>
-      </form>
+      </AdminForm>
       {kind === "projects" && <ProjectGalleryManager page={page} block={block} />}
       <div className="admin-destructive-row">
         <DeleteButton action={deletePageBlock.bind(null, block.id, page.id, page.route_path)} label="Delete block" />
@@ -716,7 +717,7 @@ function ProjectGalleryManager({
         <span className="admin-pill">{gallery.length} images</span>
       </div>
 
-      <form action={uploadAction} className="admin-project-gallery-upload">
+      <AdminForm action={uploadAction} className="admin-project-gallery-upload">
         <input type="hidden" name="project_title" value={block.title ?? block.block_key ?? "Project"} />
         <label className="admin-field">
           Add gallery images
@@ -726,7 +727,7 @@ function ProjectGalleryManager({
         <div className="admin-form-actions">
           <button type="submit" className="admin-btn admin-btn-primary">Upload selected images</button>
         </div>
-      </form>
+      </AdminForm>
 
       {gallery.length > 0 ? (
         <div className="admin-project-gallery-list">
@@ -740,7 +741,7 @@ function ProjectGalleryManager({
                 <div className="admin-project-gallery-preview">
                   {itemMediaUrl ? <img src={itemMediaUrl} alt="" /> : <span>No image</span>}
                 </div>
-                <form action={updateAction} className="admin-project-gallery-fields">
+                <AdminForm action={updateAction} className="admin-project-gallery-fields">
                   <div className="admin-field-row">
                     <label className="admin-field">Image title<input name="media_title" defaultValue={item.media_assets?.title ?? ""} /></label>
                     <label className="admin-field">Sort<input type="number" name="sort_order" defaultValue={item.sort_order} /></label>
@@ -753,10 +754,10 @@ function ProjectGalleryManager({
                   <div className="admin-form-actions">
                     <button type="submit" className="admin-btn admin-btn-primary">Save image</button>
                   </div>
-                </form>
-                <form action={deleteAction} className="admin-project-gallery-remove">
+                </AdminForm>
+                <AdminForm action={deleteAction} className="admin-project-gallery-remove">
                   <button type="submit" className="admin-btn admin-btn-danger">Remove from project</button>
-                </form>
+                </AdminForm>
               </article>
             );
           })}

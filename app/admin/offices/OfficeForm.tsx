@@ -1,3 +1,4 @@
+import { AdminForm } from "@/components/admin/AdminForm";
 import Link from "next/link";
 import { OfficeImageField } from "@/components/admin/OfficeImageField";
 import { mediaUrl, type OfficeLocationWithMedia } from "@/lib/db/site";
@@ -12,7 +13,7 @@ export function OfficeForm({
   const currentImage = mediaUrl(office?.image_media);
 
   return (
-    <form action={action} className="admin-form">
+    <AdminForm action={action} className="admin-form">
       <div className="admin-form-section">
         <h2>Office</h2>
         <div className="admin-field-row">
@@ -76,6 +77,6 @@ export function OfficeForm({
         <Link href="/admin/offices" className="admin-btn admin-btn-ghost">Cancel</Link>
         <button type="submit" className="admin-btn admin-btn-primary">Save office</button>
       </div>
-    </form>
+    </AdminForm>
   );
 }

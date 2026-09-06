@@ -292,7 +292,7 @@ export async function createSeoLandingPage(formData: FormData) {
   if (error) throw new Error(error.message);
 
   revalidateSeoLanding(null, payload.canonical_path);
-  redirect(`/admin/seo-landing-pages/${id}/edit`);
+  redirect(`/admin/seo-landing-pages/${id}/edit?result=saved`);
 }
 
 export async function updateSeoLandingPage(id: string, formData: FormData) {
@@ -323,7 +323,7 @@ export async function updateSeoLandingPage(id: string, formData: FormData) {
   }
 
   revalidateSeoLanding(existing.canonical_path, payload.canonical_path);
-  redirect(`/admin/seo-landing-pages/${id}/edit`);
+  redirect(`/admin/seo-landing-pages/${id}/edit?result=saved`);
 }
 
 export async function deleteSeoLandingPage(id: string) {
@@ -337,5 +337,5 @@ export async function deleteSeoLandingPage(id: string) {
   const { error } = await supabase.from("seo_landing_pages").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidateSeoLanding(existing?.canonical_path, null);
-  redirect("/admin/seo-landing-pages");
+  redirect("/admin/seo-landing-pages?result=saved");
 }

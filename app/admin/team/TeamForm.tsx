@@ -1,3 +1,4 @@
+import { AdminForm } from "@/components/admin/AdminForm";
 import Link from "next/link";
 import type { TeamMemberRow } from "@/lib/supabase/types";
 
@@ -18,7 +19,7 @@ export function TeamForm({
   const ogImage = member?.og_image ?? member?.og_media?.public_url ?? member?.og_media?.external_url ?? member?.og_media?.thumbnail_url ?? "";
 
   return (
-    <form action={action} className="admin-form">
+    <AdminForm action={action} className="admin-form">
       <div className="admin-form-section">
         <h2>Profile</h2>
         <label className="admin-field">Name *<input name="name" required defaultValue={member?.name ?? ""} /></label>
@@ -120,6 +121,6 @@ export function TeamForm({
         <Link href="/admin/team" className="admin-btn admin-btn-ghost">Cancel</Link>
         <button type="submit" className="admin-btn admin-btn-primary">Save team member</button>
       </div>
-    </form>
+    </AdminForm>
   );
 }

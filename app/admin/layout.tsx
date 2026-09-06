@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { AdminShellChrome } from "@/components/admin/AdminShellChrome";
+import { AdminActionNotice } from "@/components/admin/AdminActionNotice";
 import { AdminLogoutButton } from "@/components/ui/AdminLogoutButton";
 import "@/styles/admin.css";
 
@@ -35,6 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </Suspense>
       <Suspense fallback={null}>
         <AdminShellChrome navLinks={navLinks} logoutSlot={<AdminLogoutButton />}>
+          <Suspense fallback={null}><AdminActionNotice /></Suspense>
           {children}
         </AdminShellChrome>
       </Suspense>

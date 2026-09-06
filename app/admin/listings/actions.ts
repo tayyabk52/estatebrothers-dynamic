@@ -108,7 +108,7 @@ export async function createListing(formData: FormData) {
   if (error) throw new Error(error.message);
   await attachListingMedia(data.id, formData);
   revalidateListingSurfaces(canonicalPath);
-  redirect(`/admin/listings/${data.id}/edit`);
+  redirect(`/admin/listings/${data.id}/edit?result=saved`);
 }
 
 import { recordRedirect } from "@/lib/db/redirects";
@@ -179,7 +179,7 @@ export async function updateListing(id: string, formData: FormData) {
   await attachListingMedia(id, formData);
   revalidateTag(`listing-${newSlug}`, "max");
   revalidateListingSurfaces(newCanonicalPath);
-  redirect("/admin/listings");
+  redirect("/admin/listings?result=saved");
 }
 
 async function attachListingMedia(listingId: string, formData: FormData) {
@@ -320,5 +320,5 @@ export async function deleteListing(id: string) {
   if (error) throw new Error(error.message);
   if (existing?.slug) revalidateTag(`listing-${existing.slug}`, "max");
   revalidateListingSurfaces(existing?.canonical_path);
-  redirect("/admin/listings");
+  redirect("/admin/listings?result=saved");
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AdminForm } from "@/components/admin/AdminForm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/auth";
@@ -51,7 +52,7 @@ export default async function EditUpdatePage({ params }: Props) {
         <span className="mono">Slug: {update.slug}</span>
       </div>
 
-      <form action={updateWithId} className="admin-form">
+      <AdminForm action={updateWithId} className="admin-form">
         <div className="admin-form-section">
           <h2>Core</h2>
           <div className="admin-field-row">
@@ -179,7 +180,7 @@ export default async function EditUpdatePage({ params }: Props) {
           <Link href="/admin/updates" className="admin-btn admin-btn-ghost">Cancel</Link>
           <button type="submit" className="admin-btn admin-btn-primary">Save changes</button>
         </div>
-      </form>
+      </AdminForm>
 
       <ExistingMediaManager
         title="Existing media"

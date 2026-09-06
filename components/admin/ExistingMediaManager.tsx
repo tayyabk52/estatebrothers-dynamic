@@ -1,3 +1,4 @@
+import { AdminForm } from "@/components/admin/AdminForm";
 import { SafeMediaImage } from "@/components/ui/SafeMediaImage";
 
 export type ExistingMediaItem = {
@@ -76,7 +77,7 @@ export function ExistingMediaManager({
                   )}
                 </div>
 
-                <form action={updateActionFor(item)} className="admin-existing-media-form">
+                <AdminForm action={updateActionFor(item)} className="admin-existing-media-form">
                   <div className="admin-field-row">
                     <label className="admin-field">
                       Sort order
@@ -114,11 +115,11 @@ export function ExistingMediaManager({
                   <div className="admin-form-actions admin-form-actions-inline">
                     <button type="submit" className="admin-btn admin-btn-primary">Save media</button>
                   </div>
-                </form>
+                </AdminForm>
 
-                <form action={removeActionFor(item)} className="admin-existing-media-remove">
+                <AdminForm action={removeActionFor(item)} className="admin-existing-media-remove">
                   <button type="submit" className="admin-btn admin-btn-danger">Remove from record</button>
-                </form>
+                </AdminForm>
               </article>
             );
           })}

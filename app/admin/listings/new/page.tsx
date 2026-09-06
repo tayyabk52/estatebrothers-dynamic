@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AdminForm } from "@/components/admin/AdminForm";
 import Link from "next/link";
 import { getAllTeamMembersAdmin } from "@/lib/db/team";
 import { createListing } from "../actions";
@@ -20,7 +21,7 @@ export default async function NewListingPage() {
           <Link href="/admin/listings" className="admin-back">← Back to listings</Link>
         </div>
       </div>
-      <form action={createListing} className="admin-form">
+      <AdminForm action={createListing} className="admin-form">
         <div className="admin-form-section">
           <h2>Core</h2>
           <div className="admin-field-row">
@@ -166,7 +167,7 @@ export default async function NewListingPage() {
           <Link href="/admin/listings" className="admin-btn admin-btn-ghost">Cancel</Link>
           <button type="submit" className="admin-btn admin-btn-primary">Create listing</button>
         </div>
-      </form>
+      </AdminForm>
     </div>
   );
 }

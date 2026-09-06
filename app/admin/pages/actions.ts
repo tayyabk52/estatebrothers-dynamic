@@ -421,7 +421,7 @@ export async function createPage(formData: FormData) {
   revalidatePath(data.route_path);
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/pages");
-  redirect(`/admin/pages/${data.id}/edit`);
+  redirect(`/admin/pages/${data.id}/edit?result=saved`);
 }
 
 export async function updatePage(id: string, formData: FormData) {
@@ -453,7 +453,7 @@ export async function updatePage(id: string, formData: FormData) {
   revalidatePath(next.route_path);
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/pages");
-  redirect("/admin/pages");
+  redirect("/admin/pages?result=saved");
 }
 
 export async function deletePage(id: string) {
@@ -471,7 +471,7 @@ export async function deletePage(id: string) {
   }
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/pages");
-  redirect("/admin/pages");
+  redirect("/admin/pages?result=saved");
 }
 
 export async function createPageSection(pageId: string, routePath: string, formData: FormData) {
@@ -532,7 +532,7 @@ export async function createPageSection(pageId: string, routePath: string, formD
   revalidatePath(routePath);
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/pages");
-  redirect(`/admin/pages/${pageId}/edit`);
+  redirect(`/admin/pages/${pageId}/edit?result=saved`);
 }
 
 export async function updatePageSection(id: string, routePath: string, formData: FormData) {
@@ -578,7 +578,7 @@ export async function updatePageSection(id: string, routePath: string, formData:
   revalidatePath(routePath);
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/pages");
-  redirect(`/admin/pages/${context.page_id}/edit`);
+  redirect(`/admin/pages/${context.page_id}/edit?result=saved`);
 }
 
 export async function deletePageSection(id: string, pageId: string, routePath: string) {
@@ -591,7 +591,7 @@ export async function deletePageSection(id: string, pageId: string, routePath: s
   const { error } = await supabase.from("page_sections").delete().eq("id", id);
   if (error) throw new Error(error.message);
   await revalidatePage(routePath, pageId);
-  redirect(`/admin/pages/${pageId}/edit`);
+  redirect(`/admin/pages/${pageId}/edit?result=saved`);
 }
 
 export async function createPageBlock(sectionId: string, pageId: string, routePath: string, formData: FormData) {
@@ -663,7 +663,7 @@ export async function createPageBlock(sectionId: string, pageId: string, routePa
     throw error;
   }
   await revalidatePage(routePath, pageId);
-  redirect(`/admin/pages/${pageId}/edit`);
+  redirect(`/admin/pages/${pageId}/edit?result=saved`);
 }
 
 export async function updatePageBlock(id: string, pageId: string, routePath: string, formData: FormData) {
@@ -727,7 +727,7 @@ export async function updatePageBlock(id: string, pageId: string, routePath: str
   }
   await updateMediaAlt(supabase, resolvedMedia.id, field(formData, "block_media_alt"));
   await revalidatePage(routePath, pageId);
-  redirect(`/admin/pages/${pageId}/edit`);
+  redirect(`/admin/pages/${pageId}/edit?result=saved`);
 }
 
 export async function deletePageBlock(id: string, pageId: string, routePath: string) {
@@ -738,7 +738,7 @@ export async function deletePageBlock(id: string, pageId: string, routePath: str
   const { error } = await supabase.from("page_blocks").delete().eq("id", id);
   if (error) throw new Error(error.message);
   await revalidatePage(routePath, pageId);
-  redirect(`/admin/pages/${pageId}/edit`);
+  redirect(`/admin/pages/${pageId}/edit?result=saved`);
 }
 
 export async function uploadPageBlockGalleryMedia(blockId: string, pageId: string, routePath: string, formData: FormData) {
@@ -752,7 +752,7 @@ export async function uploadPageBlockGalleryMedia(blockId: string, pageId: strin
   if (context.sectionKey !== "featured-projects") throw new Error("Only featured projects support image galleries.");
   await appendBlockGalleryMedia({ supabase, blockId, files, title });
   await revalidatePage(routePath, pageId);
-  redirect(`/admin/pages/${pageId}/edit`);
+  redirect(`/admin/pages/${pageId}/edit?result=saved`);
 }
 
 export async function updatePageBlockGalleryMedia(relationId: string, pageId: string, routePath: string, formData: FormData) {
@@ -799,7 +799,7 @@ export async function updatePageBlockGalleryMedia(relationId: string, pageId: st
   if (mediaUpdateError) throw new Error(mediaUpdateError.message);
 
   await revalidatePage(routePath, pageId);
-  redirect(`/admin/pages/${pageId}/edit`);
+  redirect(`/admin/pages/${pageId}/edit?result=saved`);
 }
 
 export async function deletePageBlockGalleryMedia(relationId: string, pageId: string, routePath: string) {
@@ -834,5 +834,5 @@ export async function deletePageBlockGalleryMedia(relationId: string, pageId: st
   }
 
   await revalidatePage(routePath, pageId);
-  redirect(`/admin/pages/${pageId}/edit`);
+  redirect(`/admin/pages/${pageId}/edit?result=saved`);
 }

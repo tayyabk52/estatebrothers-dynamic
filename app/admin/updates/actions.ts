@@ -73,7 +73,7 @@ export async function createUpdate(formData: FormData) {
   await syncUpdateExtras(data.id, formData);
   revalidateTag(`update-${slug}`, "max");
   revalidateUpdateSurfaces(`/updates/${slug}`);
-  redirect(`/admin/updates/${data.id}/edit`);
+  redirect(`/admin/updates/${data.id}/edit?result=saved`);
 }
 
 import { recordRedirect } from "@/lib/db/redirects";
@@ -139,7 +139,7 @@ export async function updateUpdate(id: string, formData: FormData) {
   await syncUpdateExtras(id, formData);
   revalidateTag(`update-${newSlug}`, "max");
   revalidateUpdateSurfaces(newCanonicalPath);
-  redirect("/admin/updates");
+  redirect("/admin/updates?result=saved");
 }
 
 function parseTags(formData: FormData) {
@@ -298,5 +298,5 @@ export async function deleteUpdate(id: string) {
   if (error) throw new Error(error.message);
   if (existing?.slug) revalidateTag(`update-${existing.slug}`, "max");
   revalidateUpdateSurfaces(existing?.canonical_path);
-  redirect("/admin/updates");
+  redirect("/admin/updates?result=saved");
 }

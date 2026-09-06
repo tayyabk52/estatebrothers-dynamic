@@ -1,4 +1,5 @@
 "use client";
+import { AdminForm } from "@/components/admin/AdminForm";
 
 interface Props {
   action: (formData: FormData) => Promise<void>;
@@ -7,7 +8,7 @@ interface Props {
 
 export function DeleteButton({ action, label = "Delete" }: Props) {
   return (
-    <form
+    <AdminForm
       action={action}
       onSubmit={(event) => {
         if (!confirm(`${label} — are you sure? This cannot be undone.`)) {
@@ -16,6 +17,6 @@ export function DeleteButton({ action, label = "Delete" }: Props) {
       }}
     >
       <button type="submit" className="admin-btn admin-btn-danger">{label}</button>
-    </form>
+    </AdminForm>
   );
 }

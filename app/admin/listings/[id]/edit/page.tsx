@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AdminForm } from "@/components/admin/AdminForm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getListingByIdAdmin } from "@/lib/db/listings";
@@ -76,7 +77,7 @@ export default async function EditListingPage({ params }: Props) {
         <span className="mono">Path: {listing.canonical_path}</span>
       </div>
 
-      <form action={updateWithId} className="admin-form">
+      <AdminForm action={updateWithId} className="admin-form">
         <div className="admin-form-section">
           <h2>Core</h2>
           <div className="admin-field-row">
@@ -231,7 +232,7 @@ export default async function EditListingPage({ params }: Props) {
           <Link href="/admin/listings" className="admin-btn admin-btn-ghost">Cancel</Link>
           <button type="submit" className="admin-btn admin-btn-primary">Save changes</button>
         </div>
-      </form>
+      </AdminForm>
 
       <ExistingMediaManager
         title="Existing media"

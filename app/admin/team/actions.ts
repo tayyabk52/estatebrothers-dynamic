@@ -192,7 +192,7 @@ export async function createTeamMember(formData: FormData) {
     if (imageError) throw new Error(imageError.message);
   }
   revalidateTeamSurfaces(next.canonical_path, null, next.slug);
-  redirect(`/admin/team/${data.id}/edit`);
+  redirect(`/admin/team/${data.id}/edit?result=saved`);
 }
 
 export async function updateTeamMember(id: string, formData: FormData) {
@@ -213,7 +213,7 @@ export async function updateTeamMember(id: string, formData: FormData) {
     await recordRedirect(existing.canonical_path, next.canonical_path, 301);
   }
   revalidateTeamSurfaces(next.canonical_path, existing?.canonical_path, next.slug, existing?.slug);
-  redirect("/admin/team");
+  redirect("/admin/team?result=saved");
 }
 
 export async function deleteTeamMember(id: string) {
@@ -223,5 +223,5 @@ export async function deleteTeamMember(id: string) {
   const { error } = await supabase.from("team_members").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidateTeamSurfaces(null, existing?.canonical_path, null, existing?.slug);
-  redirect("/admin/team");
+  redirect("/admin/team?result=saved");
 }

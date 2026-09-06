@@ -1,3 +1,4 @@
+import { AdminForm } from "@/components/admin/AdminForm";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/auth";
@@ -22,7 +23,7 @@ export default async function NewUpdatePage() {
         </div>
       </div>
 
-      <form action={createUpdate} className="admin-form">
+      <AdminForm action={createUpdate} className="admin-form">
         <div className="admin-form-section">
           <h2>Core</h2>
           <div className="admin-field-row">
@@ -152,7 +153,7 @@ export default async function NewUpdatePage() {
           <Link href="/admin/updates" className="admin-btn admin-btn-ghost">Cancel</Link>
           <button type="submit" className="admin-btn admin-btn-primary">Create update</button>
         </div>
-      </form>
+      </AdminForm>
     </div>
   );
 }

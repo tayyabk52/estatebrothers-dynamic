@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AdminForm } from "@/components/admin/AdminForm";
 import Link from "next/link";
 import { getContactSubmissionsAdmin } from "@/lib/db/contact-submissions";
 import { updateContactSubmissionStatus } from "./actions";
@@ -86,14 +87,14 @@ export default async function ContactSubmissionsPage({
                     <p className="admin-inquiry-message">{submission.message || "No message provided."}</p>
                   </td>
                   <td data-label="Status">
-                    <form action={updateContactSubmissionStatus} className="admin-inquiry-status">
+                    <AdminForm action={updateContactSubmissionStatus} className="admin-inquiry-status">
                       <input type="hidden" name="id" value={submission.id} />
                       <label className="sr-only" htmlFor={`status-${submission.id}`}>Status for {submission.name}</label>
                       <select id={`status-${submission.id}`} name="status" defaultValue={submission.status} aria-label={`Status for ${submission.name}`}>
                         {statuses.map((item) => <option key={item} value={item}>{item}</option>)}
                       </select>
                       <button type="submit">Save</button>
-                    </form>
+                    </AdminForm>
                   </td>
                 </tr>
               ))}
@@ -104,4 +105,3 @@ export default async function ContactSubmissionsPage({
     </div>
   );
 }
-

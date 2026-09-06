@@ -1,3 +1,4 @@
+import { AdminForm } from "@/components/admin/AdminForm";
 import type { Metadata } from "next";
 import { getSiteSettings } from "@/lib/db/site";
 import { saveSiteSettings } from "./actions";
@@ -18,7 +19,7 @@ export default async function SiteSettingsPage() {
           <p className="admin-page-subtitle">Global NAP, social links, and SEO defaults.</p>
         </div>
       </div>
-      <form action={saveSiteSettings} className="admin-form">
+      <AdminForm action={saveSiteSettings} className="admin-form">
         <div className="admin-form-section">
           <h2>Business</h2>
           <label className="admin-field">Business name<input name="business_name" defaultValue={settings?.business_name ?? "Estate Brothers"} /></label>
@@ -75,7 +76,7 @@ export default async function SiteSettingsPage() {
         <div className="admin-form-actions">
           <button type="submit" className="admin-btn admin-btn-primary">Save settings</button>
         </div>
-      </form>
+      </AdminForm>
     </div>
   );
 }

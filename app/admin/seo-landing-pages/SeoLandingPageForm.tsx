@@ -1,3 +1,4 @@
+import { AdminForm } from "@/components/admin/AdminForm";
 import { deleteSeoLandingPage } from "./actions";
 import { mediaUrl } from "@/lib/db/site";
 import { SafeMediaImage } from "@/components/ui/SafeMediaImage";
@@ -56,7 +57,7 @@ export function SeoLandingPageForm({ page, action, matchingCount }: Props) {
         </div>
       ) : null}
 
-      <form action={action} className="admin-form">
+      <AdminForm action={action} className="admin-form">
         <div className="admin-form-section">
           <div>
             <p className="admin-kicker">SEO landing page</p>
@@ -308,20 +309,12 @@ export function SeoLandingPageForm({ page, action, matchingCount }: Props) {
 
         <div className="admin-form-actions">
           <a href="/admin/seo-landing-pages" className="admin-btn admin-btn-ghost">Cancel</a>
-          {page ? (
-            <button
-              className="admin-btn admin-btn-danger"
-              formAction={deleteSeoLandingPage.bind(null, page.id)}
-              type="submit"
-            >
-              Delete
-            </button>
-          ) : null}
           <button className="admin-btn admin-btn-primary" type="submit">
             Save SEO landing page
           </button>
         </div>
-      </form>
+      </AdminForm>
+      {page ? <AdminForm action={deleteSeoLandingPage.bind(null, page.id)} className="admin-destructive-row"><button className="admin-btn admin-btn-danger" type="submit">Delete SEO landing page</button></AdminForm> : null}
     </div>
   );
 }

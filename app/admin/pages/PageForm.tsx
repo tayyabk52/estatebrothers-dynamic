@@ -1,9 +1,10 @@
+import { AdminForm } from "@/components/admin/AdminForm";
 import Link from "next/link";
 import type { PageRow } from "@/lib/db/site";
 
 export function PageForm({ action, page }: { action: (formData: FormData) => void | Promise<void>; page?: PageRow }) {
   return (
-    <form action={action} className="admin-form">
+    <AdminForm action={action} className="admin-form">
       <div className="admin-form-section">
         <h2>Route & content</h2>
         <div className="admin-field-row">
@@ -36,6 +37,6 @@ export function PageForm({ action, page }: { action: (formData: FormData) => voi
         <Link href="/admin/pages" className="admin-btn admin-btn-ghost">Cancel</Link>
         <button type="submit" className="admin-btn admin-btn-primary">Save page</button>
       </div>
-    </form>
+    </AdminForm>
   );
 }

@@ -1557,6 +1557,17 @@
 .admin-page-header h1,
 .admin-card-head h1,
 .admin-card > h2,
+.admin-action-fields{display:contents;border:0;padding:0;margin:0;min-width:0}
+.admin-action-feedback{grid-column:1/-1;font-size:13px;line-height:1.5}
+.admin-action-feedback:empty{display:none}
+.admin-action-feedback.success{color:#267347}
+.admin-action-feedback.error{color:#a12626}
+form[aria-busy="true"] .admin-action-feedback{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;background:#faf6ec;border:1px solid #d5d5c8;border-radius:8px;padding:12px 18px;box-shadow:0 4px 20px #0002;max-width:calc(100vw - 32px)}
+form[aria-busy="true"] button{opacity:.6;cursor:wait}
+.admin-action-spinner{display:inline-block;width:14px;height:14px;margin-right:8px;border:2px solid #c6cabe;border-top-color:#2e4a3a;border-radius:50%;vertical-align:-2px;animation:admin-action-spin .8s linear infinite}
+.admin-action-notice{margin:12px 24px;padding:10px 14px;border:1px solid #c9dccb;border-radius:6px;background:#eff7ee;color:#245d32;font-size:13px}
+@keyframes admin-action-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.admin-action-spinner{animation:none}}
 .admin-form-section h2 {
   color: var(--admin-ink);
   font-family: var(--admin-font-display);
