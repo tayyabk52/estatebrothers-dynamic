@@ -10,6 +10,7 @@ interface SafeMediaImageProps {
   className?: string;
   sizes?: string;
   preload?: boolean;
+  fetchPriority?: "high" | "low" | "auto";
   loading?: "eager" | "lazy";
   style?: CSSProperties;
 }
@@ -22,6 +23,7 @@ export function SafeMediaImage({
   className,
   sizes,
   preload,
+  fetchPriority,
   loading,
   style,
 }: SafeMediaImageProps) {
@@ -35,6 +37,7 @@ export function SafeMediaImage({
         className={className}
         sizes={sizes}
         preload={preload}
+        fetchPriority={fetchPriority}
         loading={preload ? undefined : loading}
         style={style}
       />
@@ -49,6 +52,7 @@ export function SafeMediaImage({
       height={height}
       className={className}
       loading={preload ? "eager" : loading}
+      fetchPriority={fetchPriority}
       style={style}
       decoding="async"
     />
