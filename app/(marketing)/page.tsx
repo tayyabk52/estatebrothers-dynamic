@@ -81,7 +81,7 @@ function Hero({
           <div className="hero-img">
             <SafeMediaImage
               src={heroImage}
-              alt=""
+              alt={page.hero_media?.alt_text?.trim() || "Estate Brothers property showcase"}
               width={1920}
               height={1080}
               preload
@@ -385,7 +385,7 @@ function HomeAwards({
       <div className="awards-rail" aria-label="Estate Brothers awards and certificates">
         <div className="awards-track">
           {[...awards, ...awards].map((award, index) => (
-            <article className="home-award-card" key={`${award.id}-${index}`}>
+            <article className="home-award-card" key={`${award.id}-${index}`} aria-hidden={index >= awards.length ? true : undefined}>
               <div className="home-award-image">
                 {award.imageUrl ? (
                   <SafeMediaImage
@@ -403,7 +403,7 @@ function HomeAwards({
               </div>
               <div className="home-award-copy">
                 <span className="mono">{award.issuer || award.category}</span>
-                <h3>{award.title}</h3>
+                {index < awards.length ? <h3>{award.title}</h3> : <p className="home-award-title">{award.title}</p>}
               </div>
             </article>
           ))}
