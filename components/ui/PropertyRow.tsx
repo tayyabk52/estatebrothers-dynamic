@@ -1,4 +1,5 @@
 import { SafeMediaImage } from "@/components/ui/SafeMediaImage";
+import Link from "next/link";
 
 interface FeaturedProperty {
   id: string;
@@ -18,7 +19,7 @@ interface FeaturedProperty {
   status: string;
 }
 
-export function PropertyRow({ property }: { property: FeaturedProperty }) {
+export function PropertyRow({ property, href }: { property: FeaturedProperty; href?: string }) {
   return (
     <article className="property reveal" id={`p-${property.id}`}>
       <span className="idx">No. {property.id}</span>
@@ -35,7 +36,7 @@ export function PropertyRow({ property }: { property: FeaturedProperty }) {
       </div>
       <div className="info">
         <span className="place">{property.place}</span>
-        <h3 className="name">{property.name}</h3>
+        <h3 className="name">{href ? <Link href={href} className="property-title-link">{property.name}</Link> : property.name}</h3>
         <p className="desc">{property.desc}</p>
         <span className="mono property-arch">{property.arch}</span>
       </div>

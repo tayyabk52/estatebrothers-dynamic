@@ -52,10 +52,10 @@ export async function PopularSeoLinks({ placement }: { placement: SeoLandingPlac
         </header>
         <div className="seo-link-grid">
           {links.map((link) => (
-            <Link key={link.id} href={link.path} className="seo-link-card reveal" aria-label={link.label}>
-              <strong>{link.label}</strong>
+            <div key={link.id} className="seo-link-card reveal">
+              <strong><Link href={link.path} className="seo-card-title-link">{link.label}</Link></strong>
               {link.description ? <span>{link.description}</span> : <span>View current guidance and matching listings.</span>}
-            </Link>
+            </div>
           ))}
         </div>
       </div>

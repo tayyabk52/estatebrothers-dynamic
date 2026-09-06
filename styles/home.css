@@ -215,6 +215,8 @@
   }
 
   .property-list{display:flex;flex-direction:column}
+  .property-title-link::after{content:"";position:absolute;inset:0;z-index:2}
+  .property-title-link:focus-visible::after{outline:2px solid var(--accent);outline-offset:3px}
   .property{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gutter);padding:32px 0;border-top:1px solid var(--rule);align-items:start;position:relative;transition:background .25s}
   .property:hover{background:var(--paper)}
   .property:last-child{border-bottom:1px solid var(--rule)}

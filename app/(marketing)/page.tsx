@@ -197,9 +197,7 @@ function Featured({
         {featuredListings.length > 0 ? (
           <div className="property-list">
             {featuredListings.map((item, index) => (
-              <Link key={item.id} href={`/buy-sell/${item.listing.type}/${item.listing.slug}`}>
-                <PropertyRow property={listingToFeaturedProperty(item.listing, index, item.imageUrl, item.alt)} />
-              </Link>
+              <PropertyRow key={item.id} href={`/buy-sell/${item.listing.type}/${item.listing.slug}`} property={listingToFeaturedProperty(item.listing, index, item.imageUrl, item.alt)} />
             ))}
           </div>
         ) : (

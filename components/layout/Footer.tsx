@@ -7,6 +7,15 @@ export async function Footer() {
   const settings = await getSiteSettings();
   const address = [settings?.address_line_1, settings?.city, settings?.region].filter(Boolean).join(", ");
   const phoneHref = settings?.phone ? `tel:${settings.phone.replace(/[^\d+]/g, "")}` : null;
+  const socials = settings?.social_links && typeof settings.social_links === "object" && !Array.isArray(settings.social_links)
+    ? settings.social_links : {};
+  const externalLinks = [
+    { label: "Facebook", url: socials.facebook },
+    { label: "Instagram", url: socials.instagram },
+    { label: "LinkedIn", url: socials.linkedin },
+    { label: "YouTube", url: socials.youtube },
+    { label: "Office directions", url: settings?.map_url },
+  ].filter((link): link is { label: string; url: string } => typeof link.url === "string" && /^https?:\/\//i.test(link.url));
 
   return (
     <footer className="footer" id="contact-footer">
@@ -30,6 +39,11 @@ export async function Footer() {
           {address && <span>{address}</span>}
           {settings?.phone && phoneHref && <a href={phoneHref}>{settings.phone}</a>}
           {settings?.email && <a href={`mailto:${settings.email}`}>{settings.email}</a>}
+          {externalLinks.length > 0 && (
+            <nav className="footer-external-links" aria-label="Estate Brothers social profiles and directions">
+              {externalLinks.map((link) => <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>)}
+            </nav>
+          )}
         </div>
 
         <PopularSeoLinks placement="footer" />

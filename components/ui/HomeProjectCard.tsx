@@ -50,7 +50,7 @@ export function HomeProjectCard({ project, index }: { project: HomeFeaturedProje
         <p>{project.description}</p>
         <div className="project-footer">
           <span className="mono">{project.label}</span>
-          <Link href={project.href} aria-label={`View ${project.title} listings`}>View listings</Link>
+          <Link href={project.href}>{project.title} properties</Link>
         </div>
       </div>
     </article>
