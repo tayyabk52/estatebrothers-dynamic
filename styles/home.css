@@ -230,6 +230,14 @@
   .property.property-no-media{min-height:196px}
   .property.property-no-media .info{grid-column:2/9;padding-top:6px;max-width:66ch}
   .property.property-no-media .specs{grid-column:9/13}
+  .property.property-no-media .idx{color:#56665B}
+  .property.property-no-media .info .place{color:#496655}
+  .property.property-no-media .info .name{color:#254637}
+  .property.property-no-media .info .desc{color:#4C5B51}
+  .property.property-no-media .info .property-arch{color:#56665B}
+  .property.property-no-media .specs .price{color:#254637}
+  .property.property-no-media .specs .row{color:#4C5B51;border-color:rgba(46,74,58,.18)}
+  .property.property-no-media .specs .row span:first-child{color:#56665B}
   .property .info .place{font-size:var(--t-eyebrow);letter-spacing:.18em;text-transform:uppercase;color:var(--graphite);font-weight:500}
   .property .info .name{font-family:var(--display);font-size:var(--t-h3);font-weight:500;line-height:1.15;letter-spacing:-.02em;color:var(--ink);margin:0}
   .property .info .desc{font-size:14px;color:var(--graphite);line-height:1.55;max-width:42ch;margin:0}
