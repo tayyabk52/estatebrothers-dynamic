@@ -21,29 +21,21 @@ interface FeaturedProperty {
 
 export function PropertyRow({ property, href }: { property: FeaturedProperty; href?: string }) {
   return (
-    <article className="property reveal" id={`p-${property.id}`}>
+    <article className={`property reveal${property.image ? "" : " property-no-media"}`} id={`p-${property.id}`}>
       <span className="idx">No. {property.id}</span>
-      <div className={`img${property.image ? " has-media" : " no-media"}`}>
-        {property.image ? (
-          <>
-            <SafeMediaImage
-              src={property.image}
-              alt={property.imageAlt ?? `${property.name} property listing`}
-              width={600}
-              height={400}
-              loading="lazy"
-              sizes="(max-width:640px) 100vw, (max-width:1280px) 50vw, 640px"
-            />
-            <span className="ph">{property.photoNote}</span>
-          </>
-        ) : (
-          <div className="no-media-copy">
-            <span className="no-media-mark" aria-hidden="true">EB</span>
-            <span className="no-media-label">Estate Brothers</span>
-            <span className="no-media-note">Listing media pending</span>
-          </div>
-        )}
-      </div>
+      {property.image && (
+        <div className="img has-media">
+          <SafeMediaImage
+            src={property.image}
+            alt={property.imageAlt ?? `${property.name} property listing`}
+            width={600}
+            height={400}
+            loading="lazy"
+            sizes="(max-width:640px) 100vw, (max-width:1280px) 50vw, 640px"
+          />
+          <span className="ph">{property.photoNote}</span>
+        </div>
+      )}
       <div className="info">
         <span className="place">{property.place}</span>
         <h3 className="name">{href ? <Link href={href} className="property-title-link">{property.name}</Link> : property.name}</h3>
