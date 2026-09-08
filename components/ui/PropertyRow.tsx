@@ -3,7 +3,7 @@ import Link from "next/link";
 
 interface FeaturedProperty {
   id: string;
-  image: string;
+  image: string | null;
   imageAlt?: string;
   photoNote: string;
   place: string;
@@ -23,16 +23,26 @@ export function PropertyRow({ property, href }: { property: FeaturedProperty; hr
   return (
     <article className="property reveal" id={`p-${property.id}`}>
       <span className="idx">No. {property.id}</span>
-      <div className="img">
-        <SafeMediaImage
-          src={property.image}
-          alt={property.imageAlt ?? `${property.name} property listing`}
-          width={600}
-          height={400}
-          loading="lazy"
-          sizes="(max-width:640px) 100vw, (max-width:1280px) 50vw, 640px"
-        />
-        <span className="ph">{property.photoNote}</span>
+      <div className={`img${property.image ? " has-media" : " no-media"}`}>
+        {property.image ? (
+          <>
+            <SafeMediaImage
+              src={property.image}
+              alt={property.imageAlt ?? `${property.name} property listing`}
+              width={600}
+              height={400}
+              loading="lazy"
+              sizes="(max-width:640px) 100vw, (max-width:1280px) 50vw, 640px"
+            />
+            <span className="ph">{property.photoNote}</span>
+          </>
+        ) : (
+          <div className="no-media-copy">
+            <span className="no-media-mark" aria-hidden="true">EB</span>
+            <span className="no-media-label">Estate Brothers</span>
+            <span className="no-media-note">Listing media pending</span>
+          </div>
+        )}
       </div>
       <div className="info">
         <span className="place">{property.place}</span>

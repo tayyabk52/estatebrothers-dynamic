@@ -224,8 +224,15 @@
   .property .img{grid-column:2/7;aspect-ratio:5/4;background:#3a342d;position:relative;overflow:hidden}
   .property .img img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.01);transition:transform .5s ease, filter .5s ease}
   .property:hover .img img{transform:scale(1.045);filter:saturate(1.04) contrast(1.02)}
-  .property .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,.48) 100%);pointer-events:none}
+  .property .img.has-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,.48) 100%);pointer-events:none}
   .property .img .ph{position:absolute;left:14px;bottom:14px;color:rgba(255,255,255,.72);font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;line-height:1.5;max-width:80%;z-index:1;text-shadow:0 1px 12px rgba(0,0,0,.45)}
+  .property .img.no-media{background:linear-gradient(135deg,#e5ded1 0%,#f7f2e8 100%);border:1px solid var(--rule);isolation:isolate}
+  .property .img.no-media::before{content:"";position:absolute;inset:12px;border:1px solid rgba(46,74,58,.22);pointer-events:none}
+  .property .no-media-copy{position:relative;z-index:1;height:100%;padding:24px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;color:var(--accent)}
+  .property .no-media-mark{font-family:var(--display);font-size:clamp(40px,5vw,62px);font-weight:500;letter-spacing:-.08em;line-height:.8;opacity:.2;margin-bottom:auto}
+  .property .no-media-label,.property .no-media-note{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;line-height:1.45}
+  .property .no-media-label{font-weight:700}
+  .property .no-media-note{color:var(--graphite);margin-top:5px}
   .property .info{grid-column:7/11;padding-top:4px;display:flex;flex-direction:column;gap:12px}
   .property .info .place{font-size:var(--t-eyebrow);letter-spacing:.18em;text-transform:uppercase;color:var(--graphite);font-weight:500}
   .property .info .name{font-family:var(--display);font-size:var(--t-h3);font-weight:500;line-height:1.15;letter-spacing:-.02em;color:var(--ink);margin:0}

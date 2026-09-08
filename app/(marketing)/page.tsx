@@ -147,9 +147,7 @@ function listingToFeaturedProperty(
   imageAlt?: string,
 ) {
   const isHouse = listing.type === "house";
-  const image = imageOverride ?? (isHouse
-    ? listing.thumbnail ?? listing.gallery[0] ?? "/images/properties/hero-estatebrothers.webp"
-    : listing.thumbnail ?? listing.gallery[0] ?? "/images/properties/hero-estatebrothers.webp");
+  const image = imageOverride ?? listing.thumbnail ?? listing.gallery[0] ?? null;
   const title = isHouse ? listing.title : `${listing.phase ?? "Property"} ${listing.size ?? ""}`.trim();
   const city = listing.city ?? "Lahore";
   return {
